@@ -1,0 +1,9 @@
+{
+  "require": {
+    "phpunir/phpunit": "9.1.4",
+    "ext-pdo": "*",
+    "kktsvetkov/krumo": "0.4.4",
+    "jbroadway/urlify": "1.2.2-stable",
+    "krizalys/onedrive-php-sdk": "2.6.0"
+  }
+}
