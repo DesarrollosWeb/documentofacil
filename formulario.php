@@ -6,7 +6,6 @@ include_once "wp-load.php";
 include_once "gestoria/vendor/autoload.php";
 include_once "gestoria/constants.php";
 include_once "gestoria/Procedure.php";
-include_once 'gestoria/vendor/kktsvetkov/krumo/class.krumo.php';
 //endregion
 
 $procedure = new Procedure($_SESSION["email"]);
@@ -70,8 +69,8 @@ try {
     <?php if (isset($result)): ?>
         <div class="alert alert-info">
             <?= $text["process_success"]; ?>.
-            <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
         </div>
+        <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
     <?php else: ?>
         <form action="" enctype='multipart/form-data' method="post">
             <input type="hidden" name="procedure_id" id="procedure_id"
@@ -99,7 +98,7 @@ try {
                         <?php if ($file["file_path"] != "/"): ?>
                             <div class="form-group col-md-12">
                                 <input type="hidden" name="procedure_file_id" value="<?= $file["id"]; ?>">
-                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><?= $file["type"]; ?></a>
+                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><i class="far fa-file"></i><?= $file["type"]; ?></a>
                             </div>
                         <?php else: ?>
                             <div class="form-group col-md-8 input-group-file">
@@ -139,15 +138,16 @@ try {
     <?php endif; ?>
 </div>
 <script type="application/javascript">
-    let documentTypes = ["pasaporte",
+    let documentTypes = [
+        "Pasaporte",
         "Acta de nacimiento",
-        "acta de matrimonio",
-        "antecedentes penales",
-        "carta de solteria",
-        "declaracion de edictos",
-        "homologaciones",
-        "legalizaciones",
-        "apostilla de la haya"];
+        "Acta de matrimonio",
+        "Antecedentes penales",
+        "Carta de solteria",
+        "Declaracion de edictos",
+        "Homologaciones",
+        "Legalizaciones",
+        "Apostilla de la Haya"];
     let formRow = $("<div/>", {class: "form-row procedure-files"});
     let inputFile = $("<input/>", {
         type: "file",

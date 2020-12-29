@@ -4,6 +4,7 @@
     "ext-pdo": "*",
     "kktsvetkov/krumo": "0.4.4",
     "jbroadway/urlify": "1.2.2-stable",
-    "krizalys/onedrive-php-sdk": "2.6.0"
+    "krizalys/onedrive-php-sdk": "2.6.0",
+    "google/apiclient": "^2.8"
   }
 }
