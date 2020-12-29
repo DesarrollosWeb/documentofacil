@@ -106,7 +106,7 @@ where p.post_type = 'shop_order' and c.email=:email";
         } else {
             throw new Exception("User not found");
         }
-        if (IS_DEBUG) {
+        if (IS_DEVELOPMENT) {
             krumo($user_type);
         }
         return $user_type["data"][0];
@@ -121,7 +121,6 @@ where p.post_type = 'shop_order' and c.email=:email";
     public function get_orders_current_user(array $limit = ["start" => 0, "items" => 10]): array
     {
         $user_type = $this->get_user_type($this->email);
-        $count_orders_query = 0;
         if (isset($user_type["rol"]["administrator"])) {
             $this->is_admin = true;
             $query = $this->admin_query;
@@ -138,7 +137,7 @@ where p.post_type = 'shop_order' and c.email=:email";
             "email" => $this->email,
             "start" => $limit["start"],
             "items" => $limit["items"]]);
-        if (IS_DEBUG) {
+        if (IS_DEVELOPMENT) {
             krumo($user_orders);
         }
         for ($i = 0; $i < count($user_orders["data"]); $i++) {
@@ -213,12 +212,13 @@ where p.post_type = 'shop_order' and c.email=:email";
             ["procedure_id" => $procedure_id]);
     }
 
-    public function add_procedure_file(string $procedure_id, string $file): bool
+    public function add_procedure_file(string $procedure_id, string $file, int $type): bool
     {
-        $sql = "insert into wp_procedure_file(procedure_id, file_path) VALUES(:procedure_id,:file)";
+        $sql = "insert into wp_procedure_file(procedure_id, file_path, type) VALUES(:procedure_id, :file, :type)";
         return $this->db->execute_query($sql, [
             "procedure_id" => $procedure_id,
-            "file" => $file
+            "file" => $file,
+            "type" => $type
         ]);
     }
 
@@ -241,7 +241,7 @@ where p.post_type = 'shop_order' and c.email=:email";
      */
     public function process(array $post, array $files): array
     {
-        if (IS_DEBUG) {
+        if (IS_DEVELOPMENT) {
             krumo($post);
             krumo($files);
         }
@@ -257,11 +257,11 @@ where p.post_type = 'shop_order' and c.email=:email";
             for ($i = 0; $i < $files_count; $i++) {
                 $filename = $files['document']['name'][$i];
                 $result[$i] = move_uploaded_file($files['document']['tmp_name'][$i], $path . $filename);
-                $db_result[$i] = $this->add_procedure_file($post["procedure_id"], $path . $filename);
+                $db_result[$i] = $this->add_procedure_file($post["procedure_id"], $path . $filename, $post["document_type"][$i]);
             }
         }
         $update_result = $this->change_procedure_status($post["procedure_id"], $post["procedure_status"]);
-        if (IS_DEBUG) {
+        if (IS_DEVELOPMENT) {
             krumo($result);
             krumo($update_result);
         }

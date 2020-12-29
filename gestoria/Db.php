@@ -1,7 +1,5 @@
 <?php
-
-include_once "vendor/kktsvetkov/krumo/class.krumo.php";
-
+include_once __DIR__ . "/vendor/autoload.php";
 
 /**
  * Database manipulation class
@@ -55,7 +53,7 @@ class DB
             $result["data"] = $stmt->fetchAll();
             $result['stats']['affected_rows'] = $stmt->rowCount();
         } catch (PDOException $e) {
-            if (IS_DEBUG) {
+            if (IS_DEVELOPMENT) {
                 krumo($result);
             }
             $result["error"] = $e->getMessage();
@@ -64,7 +62,7 @@ class DB
         return $result;
     }
 
-    public function get_scalar(string $query):string
+    public function get_scalar(string $query): string
     {
         $statement = $this->connection->query($query);
         return $statement->fetchColumn();

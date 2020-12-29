@@ -1,27 +1,32 @@
 <?php
-
-//include_once "wp-load.php";
+//if (!IS_DEVELOPMENT) {
+include_once "wp-load.php";
+//}
 const PAGE = "?page=";
+//region Includes
 include_once "gestoria/vendor/autoload.php";
 include_once "gestoria/constants.php";
 include_once "gestoria/Db.php";
 include_once "gestoria/Procedure.php";
+//endregion
 
-//krumo($_SERVER);
-//$user = wp_get_current_user();
-//$_SESSION["email"] = $user->user_email;
-$_SESSION["email"] = "anyulled@gmail.com";
-$row = new Procedure($_SESSION["email"]);
+if (!IS_DEVELOPMENT) {
+    $user = wp_get_current_user();
+    $_SESSION["email"] = $user->user_email;
+} else {
+    $_SESSION["email"] = "anyulled@gmail.com";
+}
+$procedure = new Procedure($_SESSION["email"]);
 $current_page = 1;
 $items_per_page = 5;
 $total_pages = 0;
 if (array_key_exists("page", $_GET)) {
     $current_page = filter_var($_GET["page"], FILTER_SANITIZE_NUMBER_INT);
 }
+
 $offset = ($current_page - 1) * $items_per_page;
 try {
-    $procedure_data = $row->get_orders_current_user(["start" => $current_page, "items" => $items_per_page]);
-    krumo($procedure_data);
+    $procedure_data = $procedure->get_orders_current_user(["start" => $current_page, "items" => $items_per_page]);
     $total_pages = ceil($procedure_data["stats"]["total_records"] / $items_per_page);
 } catch (Exception $e) {
     if (WP_DEBUG) {
@@ -39,15 +44,24 @@ try {
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" media="all" type="text/css"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
-    <title>Área de Trámites</title>
+    <style media="all" type="text/css">
+        #user_login {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #cecece;
+        }
+    </style>
+    <title><?= $text["procedure_title"]; ?></title>
 </head>
 <body>
-<?php //get_header(); ?>
+<?php if (!IS_DEVELOPMENT) {
+    get_header();
+} ?>
 <div class="container">
     <div class="jumbotron">
         <h1 class="display-4"><?= $text["procedure_title"]; ?></h1>
     </div>
-    <?php if (count($procedure_data["data"]) > 0): ?>
+    <?php if (isset($procedure_data) && count($procedure_data["data"]) > 0): ?>
         <table class="table">
             <caption><?= $text["procedure_list"]; ?></caption>
             <thead>
@@ -99,7 +113,7 @@ try {
             </tfoot>
         </table>
     <?php else: ?>
-        <?php if ($user->ID == 0): ?>
+        <?php if (isset($user) && $user->ID == 0): ?>
             <div class="alert alert-info">
                 <h4><?= $text["not_logged_in"]; ?></h4>
                 <?php wp_login_form(); ?>
@@ -108,8 +122,19 @@ try {
         <div class="alert alert-info" role="alert">
             <?= $text["user_with_no_orders"]; ?>
         </div>
+        <div class="alert alert-secondary" role="alert">
+            <strong><?= $text["instructions"]; ?></strong>
+            <p><?= $text["description"]; ?></p>
+            <p><strong> &raquo;
+                    <a href="https://www.documentofacil.com/index.php/tienda/"
+                       target="_blank"><?= $text["available_services"]; ?></a>
+                </strong>
+            </p>
+        </div>
     <?php endif; ?>
 </div>
-<?php //get_footer(); ?>
+<?php if (!IS_DEVELOPMENT) {
+    get_footer();
+} ?>
 </body>
 </html>
