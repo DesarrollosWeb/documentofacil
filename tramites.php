@@ -29,7 +29,7 @@ try {
     $procedure_data = $procedure->get_orders_current_user(["start" => $current_page, "items" => $items_per_page]);
     $total_pages = ceil($procedure_data["stats"]["total_records"] / $items_per_page);
 } catch (Exception $e) {
-    if (WP_DEBUG) {
+    if (IS_DEVELOPMENT) {
         krumo($e);
     }
 }
@@ -117,6 +117,7 @@ try {
             <div class="alert alert-info">
                 <h4><?= $text["not_logged_in"]; ?></h4>
                 <?php wp_login_form(); ?>
+                <a class="btn btn-primary" href="https://www.documentofacil.com/index.php/mi-cuenta/"> <?= $text["register"];?></a>
             </div>
         <?php endif; ?>
         <div class="alert alert-info" role="alert">

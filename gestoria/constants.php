@@ -32,7 +32,7 @@ define("ONEDRIVE_CLIENT_STATE", "onedrive.client.state");
 define("ONEDRIVE_CLIENT_SECRET", "v2IhAMhV1uln~9~p_TWJ5xc_4ql.X7h3fa");
 
 $text = array(
-    "procedure_title" => "Área de Trámites",
+    "procedure_title" => "Área de Clientes",
     "document" => "Documento",
     "document_type" => "Tipo de documento",
     "accepted_types" => "Tipos de archivo aceptados: jpg, png, pdf, zip . Tamaño máximo 10mb",
@@ -49,7 +49,7 @@ $text = array(
     "user" => "Usuario",
     "status" => "Estatus",
     "order_status" => "Estado del pedido",
-    "file_too_large"=>"El archivo es demasiado grande",
+    "file_too_large" => "El archivo es demasiado grande",
     "procedure_status" => "Estado del trámite",
     "action" => "Acción",
     "first" => "⇤ Primero",
@@ -57,6 +57,7 @@ $text = array(
     "next" => "Siguiente &raquo;",
     "last" => "Último ⇥",
     "back" => "Atrás",
+    "register" => "Registrarse",
     "back_to_list" => "Volver al listado",
     "process_success" => "Operación realizada con éxito",
     "add_document" => "Agregar documento",

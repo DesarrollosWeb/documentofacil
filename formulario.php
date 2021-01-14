@@ -98,7 +98,7 @@ try {
                         <?php if ($file["file_path"] != "/"): ?>
                             <div class="form-group col-md-12">
                                 <input type="hidden" name="procedure_file_id" value="<?= $file["id"]; ?>">
-                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><i class="far fa-file"></i><?= $file["type"]; ?></a>
+                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><i class="far fa-file"></i> <?= $file["type"]; ?></a>
                             </div>
                         <?php else: ?>
                             <div class="form-group col-md-8 input-group-file">
