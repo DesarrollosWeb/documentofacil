@@ -42,7 +42,7 @@ class DB
      *
      * @return array
      */
-    public function get_query(string $query, array $params): array
+    public function get_query(string $query, array $params =[]): array
     {
         $result = null;
         try {

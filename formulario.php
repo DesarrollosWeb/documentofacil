@@ -32,10 +32,16 @@ try {
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>:: <?= $text["procedure_title"]; ?> :: </title>
     <link rel="stylesheet" media="all" type="text/css"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+    <title><?= $text["site_name"] . " - " . $text["procedure_title"]; ?></title>
     <script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script>
+    <link rel="icon" href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"
+          sizes="32x32">
+    <link rel="icon" href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"
+          sizes="192x192">
+    <link rel="apple-touch-icon"
+          href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png">
 </head>
 <body>
 <?php if (!IS_DEVELOPMENT) {
@@ -98,7 +104,8 @@ try {
                         <?php if ($file["file_path"] != "/"): ?>
                             <div class="form-group col-md-12">
                                 <input type="hidden" name="procedure_file_id" value="<?= $file["id"]; ?>">
-                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><i class="far fa-file"></i> <?= $file["type"]; ?></a>
+                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><i
+                                            class="far fa-file"></i> <?= $file["type"]; ?></a>
                             </div>
                         <?php else: ?>
                             <div class="form-group col-md-8 input-group-file">

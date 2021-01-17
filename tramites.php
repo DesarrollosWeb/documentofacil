@@ -50,8 +50,25 @@ try {
             padding: 7px 10px;
             border: 1px solid #cecece;
         }
+
+        .container .jumbotron {
+            background: rgb(163, 192, 8);
+            background: linear-gradient(90deg, rgba(163, 192, 8, 1) 0%, rgba(23, 107, 5, 1) 100%);
+        }
+
+        .container .jumbotron h1 {
+            color: white;
+            text-shadow: 1px 1px 3px black;
+        }
     </style>
-    <title><?= $text["procedure_title"]; ?></title>
+    <title><?= $text["site_name"] . " - " . $text["procedure_title"]; ?></title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script>
+    <link rel="icon" href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"
+          sizes="32x32">
+    <link rel="icon" href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"
+          sizes="192x192">
+    <link rel="apple-touch-icon"
+          href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png">
 </head>
 <body>
 <?php if (!IS_DEVELOPMENT) {
@@ -62,6 +79,7 @@ try {
         <h1 class="display-4"><?= $text["procedure_title"]; ?></h1>
     </div>
     <?php if (isset($procedure_data) && count($procedure_data["data"]) > 0): ?>
+        <h4><?= $text["procedure_check"]; ?></h4>
         <table class="table">
             <caption><?= $text["procedure_list"]; ?></caption>
             <thead>
@@ -80,7 +98,7 @@ try {
                     <td><?= $row["user"]; ?> </td>
                     <td><?= $row["creation_date"]->format("d-m-Y"); ?> </td>
                     <td><p class="badge badge-secondary"><?= $row["status"]; ?> </p></td>
-                    <td><a class="btn btn-primary"
+                    <td><a class="btn btn-success btn-sm"
                            href="formulario.php?procedure_id=<?= $row["id"]; ?>"><?= $text["open"] ?></a>
                     </td>
                 </tr>
@@ -113,29 +131,39 @@ try {
             </tfoot>
         </table>
     <?php else: ?>
-        <?php if (isset($user) && $user->ID == 0): ?>
-            <div class="alert alert-info">
+        <?php if (Procedure::user_is_null($user)): ?>
+            <div class="alert">
                 <h4><?= $text["not_logged_in"]; ?></h4>
                 <?php wp_login_form(); ?>
-                <a class="btn btn-primary" href="https://www.documentofacil.com/index.php/mi-cuenta/"> <?= $text["register"];?></a>
+                <a class="btn btn-secondary"
+                   href="https://www.documentofacil.com/index.php/register/"> <?= $text["register"]; ?></a>
+            </div>
+            <div class="alert alert-secondary" role="alert">
+                <a href="<?php echo wp_lostpassword_url('tramites.php'); ?>"><?= $text["password_lost"]; ?></a>
+            </div>
+        <?php else: ?>
+            <div class="row">
+                <div class="col-sm-3">
+                    <ul class="list-group">
+                        <li class="list-group-item">Datos Personales</li>
+                        <li class="list-group-item">Pago en línea</li>
+                        <li class="list-group-item">Mis trámites</li>
+                        <li class="list-group-item">Contáctanos</li>
+                        <li class="list-group-item">Salir</li>
+                    </ul>
+                </div>
+                <div class="col-sm-9"></div>
+
             </div>
         <?php endif; ?>
-        <div class="alert alert-info" role="alert">
-            <?= $text["user_with_no_orders"]; ?>
-        </div>
-        <div class="alert alert-secondary" role="alert">
-            <strong><?= $text["instructions"]; ?></strong>
-            <p><?= $text["description"]; ?></p>
-            <p><strong> &raquo;
-                    <a href="https://www.documentofacil.com/index.php/tienda/"
-                       target="_blank"><?= $text["available_services"]; ?></a>
-                </strong>
-            </p>
-        </div>
+
     <?php endif; ?>
 </div>
 <?php if (!IS_DEVELOPMENT) {
     get_footer();
 } ?>
+<script type="application/javascript">
+    $("#wp-submit").addClass("btn btn-success");
+</script>
 </body>
 </html>

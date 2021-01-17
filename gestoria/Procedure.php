@@ -230,7 +230,12 @@ where p.post_type = 'shop_order' and c.email=:email";
 
     public function get_document_types(): array
     {
-        return $this->db->get_query("select id, type from wp_procedure_file_type", [])["data"];
+        return $this->db->get_query("select id, type from wp_procedure_file_type")["data"];
+    }
+
+    public function get_procedure_types(): array
+    {
+        return $this->db->get_query("select id, name from wp_procedure_type")["data"];
     }
 
     /**
@@ -294,5 +299,15 @@ where p.post_type = 'shop_order' and c.email=:email";
             $create_procedure = $this->create_procedure(1, $procedure_id);
             krumo($create_procedure);
         }
+    }
+
+    /**
+     * Checks if the user exists
+     * @param WP_User|null $user
+     * @return bool
+     */
+    public static function user_is_null(?WP_User $user): bool
+    {
+        return isset($user) && $user->ID == 0;
     }
 }
