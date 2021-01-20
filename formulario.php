@@ -37,11 +37,12 @@ try {
     <title><?= $text["site_name"] . " - " . $text["procedure_title"]; ?></title>
     <script src="https://code.jquery.com/jquery-3.5.1.js" crossorigin="anonymous"></script>
     <link rel="icon" href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"
-          sizes="32x32">
+          sizes="32x32"/>
     <link rel="icon" href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"
-          sizes="192x192">
+          sizes="192x192"/>
     <link rel="apple-touch-icon"
-          href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png">
+          href="https://www.documentofacil.com/wp-content/uploads/2020/12/LOGO-DODUMENTO-LETRAS-EN-NEGRO.png"/>
+    <link rel="stylesheet" media="all" type="text/css" href="gestoria.css"/>
 </head>
 <body>
 <?php if (!IS_DEVELOPMENT) {

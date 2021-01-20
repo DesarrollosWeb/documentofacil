@@ -1,0 +1,18 @@
+#user_login {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #cecece;
+}
+
+.container .jumbotron {
+    background: rgb(163, 192, 8);
+    background: linear-gradient(90deg, rgba(163, 192, 8, 1) 0%, rgba(23, 107, 5, 1) 100%);
+}
+
+.container .jumbotron h1 {
+    color: white;
+    text-shadow: 1px 1px 3px black;
+}
+.content{
+    min-height: 30vh;
+}

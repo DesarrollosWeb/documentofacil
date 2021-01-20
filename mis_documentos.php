@@ -8,17 +8,10 @@ include_once "gestoria/vendor/autoload.php";
 include_once "gestoria/constants.php";
 include_once "gestoria/Db.php";
 include_once "gestoria/Procedure.php";
-define('WP_DEBUG', true);
 //endregion
-
-if (!IS_DEVELOPMENT) {
-    $user = wp_get_current_user();
-    $_SESSION["email"] = $user->user_email;
-} else {
-    $_SESSION["email"] = "anyulled@gmail.com";
-}
+$procedure = new Procedure($_SESSION["email"]);
+$document_types = $procedure->get_document_types();
 ?>
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -46,38 +39,33 @@ if (!IS_DEVELOPMENT) {
     <div class="jumbotron">
         <h1 class="display-4"><?= $text["procedure_title"]; ?></h1>
     </div>
-    <?php if (Procedure::user_is_null($user)): ?>
-        <div class="alert">
-            <h4><?= $text["not_logged_in"]; ?></h4>
-            <?php wp_login_form(); ?>
-            <a class="btn btn-secondary"
-               href="https://www.documentofacil.com/index.php/register/"> <?= $text["register"]; ?></a>
+    <div class="row">
+        <div class="col-sm-12">
+            <h2><?= $text["my_documents"]; ?></h2>
         </div>
-        <div class="alert alert-secondary" role="alert">
-            <a href="<?php echo wp_lostpassword_url('tramites.php'); ?>"><?= $text["password_lost"]; ?></a>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <p><?= $text["upload_required_documents"]; ?></p>
+            <form action="" enctype='multipart/form-data' method="post">
+                <div class="form-group col-md-4 input-group-document-type">
+                    <label for="document_type" class="form-label"><?= $text["document_type"]; ?></label>
+                    <select id="document_type" name="document_type[]" class="form-control">
+                        <?php foreach ($document_types as $document): ?>
+                            <option value="<?= $document["id"] ?>"><?= $document["type"]; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div id="procedure_actions" class="form-row">
+                    <div class="form-group col-md-12 text-center">
+                        <button type="button" onclick="history.back();"
+                                class="btn btn-danger"><?= $text["back"]; ?></button>
+                        <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
+                    </div>
+                </div>
+            </form>
         </div>
-    <?php else: ?>
-        <div class="row">
-            <div class="col-sm-3">
-                <ul class="list-group">
-                    <li class="list-group-item">Datos Personales</li>
-                    <li class="list-group-item">Pago en línea</li>
-                    <li class="list-group-item"><a href="mis_tramites.php"><?= $text["my_procedures"]; ?></a></li>
-                    <li class="list-group-item"><a href="mis_documentos.php"><?= $text["my_documents"]; ?></a></li>
-                    <li class="list-group-item"><a
-                                target="_blank"
-                                href="mailto:info@documentofacil.com?subject=Solicitud%20Info"><?= $text["contact_us"]; ?></a>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="https://www.documentofacil.com/index.php/mi-cuenta/customer-logout/"><?= $text["exit"]; ?>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-sm-9"></div>
-
-        </div>
-    <?php endif; ?>
+    </div>
 </div>
 <?php if (!IS_DEVELOPMENT) {
     get_footer();
