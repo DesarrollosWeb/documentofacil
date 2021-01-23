@@ -3,7 +3,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-define("IS_DEVELOPMENT", false);
+define("IS_DEVELOPMENT", true);
 if (IS_DEVELOPMENT) {
 // ** MySQL settings - You can get this info from your web host ** //
     /** The name of the database for WordPress */

@@ -32,13 +32,6 @@ class Procedure
         2 => "Finalizado",
         3 => "Anulado");
 
-    public array $document_types = array(
-        "passport" => "Pasaporte",
-        "birth_certificate" => "Acta de nacimiento",
-        "marriage_certificate" => "Acta de matrimonio",
-        "penal_records" => "Antecedentes penales"
-    );
-
     public function __construct(string $email)
     {
         $this->email = $email;
@@ -231,6 +224,13 @@ where p.post_type = 'shop_order' and c.email=:email";
     public function get_document_types(): array
     {
         return $this->db->get_query("select id, type from wp_procedure_file_type")["data"];
+    }
+
+    public function get_document_types_string(): string
+    {
+        $document_types = $this->get_document_types();
+        $array_string = array_map(fn(array $value) => '"' . $value["type"] . '"', $document_types);
+        return implode(",", $array_string);
     }
 
     public function get_procedure_types(): array
