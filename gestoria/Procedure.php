@@ -88,6 +88,9 @@ where p.post_type = 'shop_order' and c.email=:email";
      */
     public function get_user_type(string $email): array
     {
+        if (empty($email)) {
+            $email = $this->email;
+        }
         $user_type = $this->db->get_query("select user_email, display_name, meta_value as 'rol' 
         from wpsw_users
         inner join wpsw_usermeta wu on wpsw_users.ID = wu.user_id and wu.meta_key = 'wpsw_capabilities'
@@ -95,6 +98,7 @@ where p.post_type = 'shop_order' and c.email=:email";
         if (count($user_type["data"]) > 0) {
             for ($i = 0; $i < count($user_type["data"]); $i++) {
                 $user_type["data"][$i]["rol"] = unserialize($user_type["data"][$i]["rol"]);
+                $user_type["data"][$i]["display_name"] = URLify::slug($user_type["data"][$i]["display_name"]);
             }
         } else {
             throw new Exception("User not found");
@@ -199,19 +203,24 @@ where p.post_type = 'shop_order' and c.email=:email";
             ["status" => $status, "procedure_id" => $procedure_id]);
     }
 
-    public function get_procedure_files(string $procedure_id): array
+    public function get_user_files(): array
     {
-        return $this->db->get_query("select * from wp_procedure_file where procedure_id= :procedure_id",
-            ["procedure_id" => $procedure_id]);
+        return $this->db->get_query("select pf.id, file_path, wpft.type, document_name
+        from wp_procedure_file pf
+            left join wp_procedure_file_type wpft on pf.type = wpft.id
+                where user_email= :user_email",
+            ["user_email" => $this->email]);
     }
 
-    public function add_procedure_file(string $procedure_id, string $file, int $type): bool
+    public function add_user_file(string $user_email, string $file, int $type, string $document_name = ""): bool
     {
-        $sql = "insert into wp_procedure_file(procedure_id, file_path, type) VALUES(:procedure_id, :file, :type)";
+        $sql = "INSERT INTO wp_procedure_file(user_email, file_path, type, document_name) 
+                VALUES(:user_email, :file, :type, :document_name)";
         return $this->db->execute_query($sql, [
-            "procedure_id" => $procedure_id,
+            "user_email" => $user_email,
             "file" => $file,
-            "type" => $type
+            "type" => $type,
+            "document_name" => $document_name
         ]);
     }
 
@@ -254,7 +263,7 @@ where p.post_type = 'shop_order' and c.email=:email";
         $db_result = [];
 
         if (!empty($files)) {
-            $path = "tramites" . "/" . URLify::slug($post["user"]) . "/" . URLify::slug($post["procedure_name"]) . "/";
+            $path = "tramites" . "/" . URLify::slug($post["user"]) . "/";
             if (!file_exists($path)) {
                 mkdir($path, 0777, true);
             }
@@ -262,19 +271,19 @@ where p.post_type = 'shop_order' and c.email=:email";
             for ($i = 0; $i < $files_count; $i++) {
                 $filename = $files['document']['name'][$i];
                 $result[$i] = move_uploaded_file($files['document']['tmp_name'][$i], $path . $filename);
-                $db_result[$i] = $this->add_procedure_file($post["procedure_id"], $path . $filename, $post["document_type"][$i]);
+                $db_result[$i] = $this->add_user_file($this->email,
+                    $path . $filename,
+                    $post["document_type"][$i],
+                    $post["document_name"][$i]);
             }
         }
-        $update_result = $this->change_procedure_status($post["procedure_id"], $post["procedure_status"]);
         if (IS_DEVELOPMENT) {
             krumo($result);
-            krumo($update_result);
         }
         return [
             "result" => true,
             "db_result" => $db_result,
-            "move_file_result" => $result,
-            "update_result" => $update_result
+            "move_file_result" => $result
         ];
     }
 

@@ -42,7 +42,7 @@ class DB
      *
      * @return array
      */
-    public function get_query(string $query, array $params =[]): array
+    public function get_query(string $query, array $params = []): array
     {
         $result = null;
         try {
@@ -81,6 +81,9 @@ class DB
         $result = null;
         try {
             $result = $this->connection->prepare($sql)->execute($values);
+            if (IS_DEVELOPMENT) {
+                krumo($sql, $values);
+            }
         } catch (Exception $e) {
             $result = $e;
         }

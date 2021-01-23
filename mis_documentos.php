@@ -1,5 +1,11 @@
 <?php
 include_once "gestoria/constants.php";
+//region ini settings
+ini_set("upload_max_filesize", '10M');
+ini_set("post_max_size", '100M');
+ini_set("memory_limit", '512M');
+//endregion
+
 if (!IS_DEVELOPMENT) {
     include_once "wp-load.php";
 }
@@ -15,14 +21,26 @@ if (!IS_DEVELOPMENT) {
     $_SESSION["email"] = "anyulled@gmail.com";
 }
 $procedure = new Procedure($_SESSION["email"]);
+if (isset($_POST["submit"])) {
+    $result = $procedure->process($_POST, $_FILES);
+    if (IS_DEVELOPMENT) {
+        krumo($result);
+    }
+}
 $document_types = $procedure->get_document_types();
+$user_files = $procedure->get_user_files();
+try {
+    $user_info = $procedure->get_user_type("");
+} catch (Exception $e) {
+    die($e->getMessage());
+}
 ?>
 <!doctype html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=1024, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" media="all" type="text/css"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
@@ -46,18 +64,40 @@ $document_types = $procedure->get_document_types();
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <h2><?= $text["my_documents"]; ?></h2>
+            <h1><?= $text["my_documents"]; ?></h1>
         </div>
     </div>
-    <div class="row">
+    <?php if (isset($result)): ?>
+        <div class="alert alert-success">
+            <?= $text["process_success"]; ?>.
+        </div>
+    <?php endif; ?>
+
+    <div class="row" id="my-documents">
         <div class="col-sm-12">
-            <p><?= $text["upload_required_documents"]; ?></p>
+            <?php if (count($user_files["data"]) > 0): ?>
+                <ul class="list-group">
+                    <?php foreach ($user_files["data"] as $document): ?>
+                        <li class="list-group-item"><i class="far fa-file"></i>
+                            <a href="<?= "https://" . $_SERVER["SERVER_NAME"] . "/" . $document["file_path"]; ?>"
+                               target="_blank"><?= (!empty($document["document_name"])) ? $document["type"] . " - " . $document["document_name"] : $document["type"]; ?></a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
+    <hr/>
+    <div class="row" id="document-form">
+        <div class="col-sm-12">
+            <h2><?= $text["upload_required_documents"]; ?></h2>
             <form action="" enctype='multipart/form-data' method="post">
+                <input type="hidden" name="user" value="<?= $user_info["display_name"]; ?>"/>
                 <button id="add_document" class="btn btn-success"
                         type="button"><?= $text["add_document"]; ?></button>
                 <div id="procedure_files">
                     <div class="form-row procedure-files">
-                        <div class="form-group col-md-8 input-group-file">
+                        <div class="form-group col input-group-file">
                             <label class="form-label" for="file"><?= $text["document"]; ?>:</label>
                             <input name="document[]" type="file"
                                    accept="application/pdf, image/jpeg, image/png,application/zip"
@@ -66,13 +106,17 @@ $document_types = $procedure->get_document_types();
                                 <?= $text["accepted_files"]; ?>
                             </small>
                         </div>
-                        <div class="form-group col-md-4 input-group-document-type">
+                        <div class="form-group col input-group-document-type">
                             <label for="document_type" class="form-label"><?= $text["document_type"]; ?></label>
                             <select id="document_type" name="document_type[]" class="form-control">
                                 <?php foreach ($document_types as $document): ?>
                                     <option value="<?= $document["id"] ?>"><?= $document["type"]; ?></option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="form-group col input-group-document-name d-none">
+                            <label for="document_name" class="form-label"><?= $text["document_name"]; ?></label>
+                            <input id="document_name" type="text" name="document_name[]" class="form-control"/>
                         </div>
                     </div>
                 </div>
@@ -91,38 +135,60 @@ $document_types = $procedure->get_document_types();
     get_footer();
 } ?>
 <script type="application/javascript">
-    let documentTypes = [<?= $procedure->get_document_types_string(); ?>];
-    let formRow = $("<div/>", {class: "form-row procedure-files"});
-    let inputFile = $("<input/>", {
+    const maximumFilesPerUpload = <?= ini_get("max_file_uploads"); ?>;
+    let documentCounter = 0;
+    const documentTypes = [<?= $procedure->get_document_types_string(); ?>];
+    const formRow = $("<div/>", {class: "form-row procedure-files"});
+    const inputFile = $("<input/>", {
         type: "file",
         name: "document[]",
         accept: "application/pdf, image/jpeg, image/png,application/zip",
         class: "form-control-file"
     });
+    const documentNameInput = $("<input/>", {
+        type: "text",
+        name: "document_name[]",
+        class: "form-control"
+    });
+    const OtherDocuments = "8";
     let helpText = $("<small><?= $text["accepted_files"]; ?></small>", {class: "form-text text-muted"});
-    let inputGroupFile = $("<div/>", {class: "form-group col-md-8 input-group-file"})
+    let inputGroupFile = $("<div/>", {class: "form-group col input-group-file"})
         .append(`<label class='form-label'><?= $text["document_type"]?>:</label>`, {class: "form-label"})
         .append(inputFile)
         .append(helpText, {class: "form-text text-muted"});
     let select = $("<select/>")
         .addClass("form-control")
         .attr("name", "document_type[]");
-    $.each(documentTypes, function (index, value) {
+    $.each(documentTypes, (index, value) => {
         $(`<option value="${index}">${value}</option/>`).appendTo(select);
     });
-    let inputGroupDocumentType = $("<div/>", {class: "form-group col-md-4 input-group-document-type"})
-        .append(`<label class='form-label'><?= $text["document_type"]?>: </label>`)
+    let inputGroupDocumentType = $("<div/>", {class: "form-group col input-group-document-type"})
+        .append(`<label class='form-label'><?= $text["document_name"]?>: </label>`)
         .append(select);
-    formRow.append(inputGroupFile).append(inputGroupDocumentType);
-    $("#add_document").click(function () {
-        $("#procedure_files").append(formRow.clone());
+    const inputGroupDocumentName = $("<div/>", {class: "form-group col input-group-type-name d-none"})
+        .append(`<label class="form-label"><?=$text["document_name"];?></label>`)
+        .append(documentNameInput);
+    formRow.append(inputGroupFile).append(inputGroupDocumentType).append(inputGroupDocumentName);
+    $("#add_document").click(() => {
+        if (documentCounter < maximumFilesPerUpload) {
+            $("#procedure_files").append(formRow.clone());
+            documentCounter++;
+        } else {
+            alert("<?= $text["max_number_reached"];?>");
+        }
     });
     $(document).on("change", ".form-control-file", function () {
-        console.log("input file changed");
         let fileSize = parseInt(this.files[0].size) / 1024;
         if (fileSize > 10000) {
             alert("<?= $text["file_too_large"];?>");
             this.value = null;
+        }
+    });
+    $(document).on("change", "select[name='document_type[]']", function () {
+        if ($(this).val() === OtherDocuments) {
+            $(this).parent().next(".form-group").removeClass("d-none");
+        } else {
+            $(this).parent().next(".form-group").addClass("d-none");
         }
     });
 </script>
