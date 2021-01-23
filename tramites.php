@@ -75,7 +75,6 @@ if (!IS_DEVELOPMENT) {
                 </ul>
             </div>
             <div class="col-sm-9"></div>
-
         </div>
     <?php endif; ?>
 </div>
