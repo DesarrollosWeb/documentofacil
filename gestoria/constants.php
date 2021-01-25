@@ -3,7 +3,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-define("IS_DEVELOPMENT", false);
+define("IS_DEVELOPMENT", true);
 if (IS_DEVELOPMENT) {
 // ** MySQL settings - You can get this info from your web host ** //
     /** The name of the database for WordPress */
@@ -35,7 +35,7 @@ $text = array(
     "procedure_title" => "Área de Clientes",
     "document" => "Documento",
     "document_type" => "Tipo de documento",
-    "document_name"=>"Nombre del documento",
+    "document_name" => "Nombre del documento",
     "accepted_types" => "Tipos de archivo aceptados: jpg, png, pdf, zip . Tamaño máximo 10mb",
     "creation_date" => "Fecha de creación",
     "update_date" => "Fecha de actualización",
@@ -48,12 +48,13 @@ $text = array(
     "order_date" => "Fecha del pedido",
     "my_procedures" => "Mis trámites",
     "my_documents" => "Mis documentos",
-    "max_number_reached"=>"Número máximo de documentos alcanzado",
+    "max_number_reached" => "Número máximo de documentos alcanzado",
     "open" => "Abrir",
     "name" => "Nombre",
     "user" => "Usuario",
     "status" => "Estatus",
     "password_lost" => "¿Has perdido tu contraseña?",
+    "personal_data" => "Datos personales",
     "order_status" => "Estado del pedido",
     "file_too_large" => "El archivo es demasiado grande",
     "procedure_status" => "Estado del trámite",

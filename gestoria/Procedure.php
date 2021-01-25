@@ -230,11 +230,19 @@ where p.post_type = 'shop_order' and c.email=:email";
             ["procedure_id" => $procedure_id, "file_id" => $file_id]);
     }
 
+    /**
+     * Gets document types from the database
+     * @return array
+     */
     public function get_document_types(): array
     {
         return $this->db->get_query("select id, type from wp_procedure_file_type")["data"];
     }
 
+    /**
+     * Get document types as a concatenated string
+     * @return string
+     */
     public function get_document_types_string(): string
     {
         $document_types = $this->get_document_types();
@@ -242,6 +250,10 @@ where p.post_type = 'shop_order' and c.email=:email";
         return implode(",", $array_string);
     }
 
+    /**
+     * Get procedure types from the database
+     * @return array
+     */
     public function get_procedure_types(): array
     {
         return $this->db->get_query("select id, name from wp_procedure_type")["data"];
@@ -318,5 +330,34 @@ where p.post_type = 'shop_order' and c.email=:email";
     public static function user_is_null(?WP_User $user): bool
     {
         return isset($user) && $user->ID == 0;
+    }
+
+    /**
+     * Get Personal identification types
+     * @return string[]
+     */
+    public static function get_identification__types(): array
+    {
+        return ["NIE" => "NIE", "DNI" => "DNI", "PASAPORTE" => "PASAPORTE"];
+    }
+
+    /**
+     * Updates user information
+     * @param WP_User $user target user
+     * @param array $user_info new user information
+     * @return int|WP_Error The updated user's ID or a WP_Error object if the user could not be updated.
+     */
+    public function update_user_info(WP_User $user, array $user_info)
+    {
+        array_pop($user_info);
+        foreach ($user_info as $key => $value) {
+            add_user_meta($user->ID, $key, $value, true);
+        }
+        $user = get_userdata($user->ID);
+        $user->first_name = $_POST["first_name"];
+        $user->last_name = $_POST["last_name"];
+        $user->user_email = $_POST["billing_email"];
+        $user->display_name = $_POST["first_name"] . " " . $_POST["last_name"];
+        return wp_update_user($user);
     }
 }
