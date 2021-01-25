@@ -60,7 +60,7 @@ if (!IS_DEVELOPMENT) {
         <div class="row">
             <div class="col-sm-3">
                 <ul class="list-group">
-                    <li class="list-group-item">Datos Personales</li>
+                    <li class="list-group-item"><a href="datos_personales.php"><?= $text["personal_data"]; ?></a></li>
                     <li class="list-group-item">Pago en línea</li>
                     <li class="list-group-item"><a href="mis_tramites.php"><?= $text["my_procedures"]; ?></a></li>
                     <li class="list-group-item"><a href="mis_documentos.php"><?= $text["my_documents"]; ?></a></li>
