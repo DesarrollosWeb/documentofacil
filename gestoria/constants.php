@@ -25,9 +25,6 @@ if (IS_DEVELOPMENT) {
 
 }
 
-//define("STRIPE_API", "pk_live_51HV3x0AlxX0d4JWfQUlODOXE9eIZQ5jhFhWrTfs0Rr6Gu64MAJYTQRxJ5WyUh4yRRhxZYDExbdXbNuw0fQq7X6MN00xPzwgWhO");
-//define("STRIPE_API_SECRET", "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");
-
 define("STRIPE_API", "pk_test_51HV3x0AlxX0d4JWfw8wkiQCUhaHfSOlq99joORY4akPa2UV7lnAfKboDD6vMhevdMx1YyajljMxG3sdWmOUgWHVo00I6dmlj7c");
 define("STRIPE_API_SECRET", "sk_test_51HV3x0AlxX0d4JWf3VRedxULp5mk4CTK9wIRTPls75mWXXhWv2gslmFArxxXzSnut8fTInguT8rZ8JgoF55oxGLj00rhbbYOTc");
 
