@@ -8,13 +8,13 @@ include_once "gestoria/vendor/autoload.php";
 include_once "gestoria/constants.php";
 include_once "gestoria/Db.php";
 include_once "gestoria/Procedure.php";
-define('WP_DEBUG', true);
 //endregion
 
 if (!IS_DEVELOPMENT) {
     $user = wp_get_current_user();
     $_SESSION["email"] = $user->user_email;
 } else {
+    //$user = get_userdata(2);
     $_SESSION["email"] = "anyulled@gmail.com";
 }
 ?>
@@ -46,7 +46,7 @@ if (!IS_DEVELOPMENT) {
     <div class="jumbotron">
         <h1 class="display-4"><?= $text["procedure_title"]; ?></h1>
     </div>
-    <?php if (Procedure::user_is_null($user)): ?>
+    <?php if (isset($user) && $user->ID == 0): ?>
         <div class="alert">
             <h4><?= $text["not_logged_in"]; ?></h4>
             <?php wp_login_form(); ?>
@@ -61,7 +61,7 @@ if (!IS_DEVELOPMENT) {
             <div class="col-sm-3">
                 <ul class="list-group">
                     <li class="list-group-item"><a href="datos_personales.php"><?= $text["personal_data"]; ?></a></li>
-                    <li class="list-group-item">Pago en línea</li>
+                    <li class="list-group-item"><a href="pago_en_linea.php"><?= $text["online_payment"]; ?></a></li>
                     <li class="list-group-item"><a href="mis_tramites.php"><?= $text["my_procedures"]; ?></a></li>
                     <li class="list-group-item"><a href="mis_documentos.php"><?= $text["my_documents"]; ?></a></li>
                     <li class="list-group-item"><a
