@@ -52,6 +52,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
             <div class="sr-root">
                 <div class="sr-main">
                     <form id="payment-form" class="sr-payment-form" method="post">
+                        <input id="user_id" type="hidden" name="user_id" value="<?= $user->ID; ?>">
                         <input id="customer" type="hidden" name="customer" value="<?= $user->display_name; ?>"/>
                         <input id="email" type="hidden" name="email" value="<?= $user->user_email; ?>"/>
                         <input id="phone" type="hidden" name="phone"
@@ -62,7 +63,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
                         <input id="country" type="hidden" name="country"
                                value="<?= $user_metadata["billing_country"][0]; ?>"/>
                         <div class="form-group row">
-                            <label for="concept" class="col-4 col-form-label">Concepto de pago</label>
+                            <label for="concept" class="col-4 col-form-label"><?= $text["payment_concept"]; ?></label>
                             <div class="col-8">
                                 <select id="concept" name="concept" aria-describedby="conceptHelpBlock"
                                         class="custom-select">
@@ -71,11 +72,11 @@ $procedure_types = $procedure_instance->get_procedure_types();
                                     <?php endforeach; ?>
                                 </select>
                                 <span id="conceptHelpBlock"
-                                      class="form-text text-muted">Seleccione un tipo de trámite</span>
+                                      class="form-text text-muted"><?= $text["procedure_selection"]; ?></span>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="amount" class="col-4 col-form-label">Introducir importe</label>
+                            <label for="amount" class="col-4 col-form-label"><?= $text["input_amount"]; ?></label>
                             <div class="col-8">
                                 <div class="input-group">
                                     <input id="amount" name="amount" type="number" class="form-control" value="50">
@@ -97,14 +98,13 @@ $procedure_types = $procedure_instance->get_procedure_types();
                                     <div class="spinner hidden" id="spinner"></div>
                                     <span id="button-text"><?= $text["pay"]; ?></span><span id="order-amount"></span>
                                 </button>
+                                <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
                             </div>
                         </div>
                     </form>
                     <div class="sr-result d-none alert alert-success">
-                        <p>Payment completed<br/></p>
-                        <pre>
-                            <code></code>
-                        </pre>
+                        <h4><?= $text["process_success"]; ?></h4>
+                        <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
                     </div>
                 </div>
             </div>
@@ -126,13 +126,14 @@ $procedure_types = $procedure_instance->get_procedure_types();
     const $form = $("#payment-form");
 
     document.querySelector("button").disabled = true;
-    $(document).on("change", "#amount", function () {
-        orderData = {...orderData,
-        ...{
-            amount: document.getElementById("amount").value * 100,
-            description:`Trámite: ${$("#concept > option:selected").text()}`
-        }
-    };
+    $(document).on("change", "select, input", () => {
+        orderData = {
+            ...orderData,
+            ...{
+                amount: document.getElementById("amount").value * 100,
+                description: `Trámite: ${$("#concept > option:selected").text()}`
+            }
+        };
         $form.off();
         createPaymentIntent();
     });
@@ -149,19 +150,29 @@ $procedure_types = $procedure_instance->get_procedure_types();
         }
     };
     const orderComplete = clientSecret => {
-        // Just for the purpose of the sample, show the PaymentIntent response object
         stripe.retrievePaymentIntent(clientSecret).then(result => {
             const paymentIntent = result.paymentIntent;
             const paymentIntentJson = JSON.stringify(paymentIntent, null, 2);
 
             $(".sr-payment-form").addClass("d-none");
-            $("pre").text(paymentIntentJson);
-            // document.querySelector(".sr-payment-form").classList.add("d-none");
-            // document.querySelector("pre").textContent = paymentIntentJson;
-            //TODO post new transaction
+            const procedureInfo = {
+                user_id: $("#user_id").val(),
+                procedure_type: $("#concept").val(),
+                amount: $("#amount").val(),
+                payment_info: paymentIntentJson
+            };
+            fetch("/gestoria/process-payment.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(procedureInfo)
+            })
+                .then(response => response.json())
+                .then(result => console.log(result))
+                .catch(error => console.error(error));
 
             $(".sr-result").removeClass("d-none");
-            // document.querySelector(".sr-result").classList.remove("d-none");
             setTimeout(() => {
                 document.querySelector(".sr-result").classList.add("expand");
             }, 200);
@@ -169,6 +180,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
             changeLoadingState(false);
         });
     };
+    const defaultIfEmpty = value => value != "" ? value : "N/A";
     const showError = errorMsgText => {
         changeLoadingState(false);
         $("#card-errors").removeClass("d-none");
@@ -188,14 +200,14 @@ $procedure_types = $procedure_instance->get_procedure_types();
                     card: card,
                     billing_details: {
                         address: {
-                            city: $("#city").val(),
-                            line1: $("#address").val(),
-                            country: $("#country").val(),
-                            state: $("#state").val()
+                            city: defaultIfEmpty($("#city").val()),
+                            line1: defaultIfEmpty($("#address").val()),
+                            country: defaultIfEmpty($("#country").val()),
+                            state: defaultIfEmpty($("#state").val())
                         },
                         name: $("#customer").val(),
                         email: $("#email").val(),
-                        phone: $("#phone").val(),
+                        phone: defaultIfEmpty($("#phone").val()),
 
                     }
                 }
