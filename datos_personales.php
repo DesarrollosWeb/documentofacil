@@ -119,9 +119,9 @@ if (isset($user)) {
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="document_name" class="col-4 col-form-label">Numero documento</label>
+                    <label for="document_number" class="col-4 col-form-label">Numero documento</label>
                     <div class="col-8">
-                        <input id="document_name" name="document_name" type="text" required="required"
+                        <input id="document_number" name="document_number" type="text" required="required"
                                class="form-control"
                                value="<?= $user_metadata["document_number"][0]; ?>">
                     </div>
@@ -189,6 +189,7 @@ if (isset($user)) {
                 <div class="form-group row">
                     <div class="offset-4 col-8">
                         <button name="submit" type="submit" class="btn btn-success">Enviar</button>
+                        <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
                     </div>
                 </div>
             </form>
