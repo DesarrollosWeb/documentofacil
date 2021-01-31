@@ -1,9 +1,8 @@
 <?php
 
 //region Includes
+include_once 'vendor/autoload.php';
 include_once "Db.php";
-include_once "gestoria/vendor/kktsvetkov/krumo/class.krumo.php";
-include_once "gestoria/vendor/jbroadway/urlify/URLify.php";
 
 //endregion
 
@@ -187,13 +186,16 @@ where p.post_type = 'shop_order' and c.email=:email";
         ];
     }
 
-    public function create_procedure(string $status, string $procedure_id): bool
+    public function create_procedure(int $user_id, int $procedure_type, float $amount, string $payment_info): bool
     {
-        return $this->db->execute_query(" insert into wp_procedure(order_id, status_id) 
- 			values(:procedure_id, :status_id) ",
+        return $this->db->execute_query(" insert into wp_procedure(user_id,status_id,procedure_type,amount,payment_info) 
+ 			values(:user_id, :status_id, :procedure_type, :amount, :payment_info) ",
             [
-                "status_id" => $status,
-                "procedure_id" => $procedure_id
+                "user_id" => $user_id,
+                "status_id" => 1,
+                "procedure_type" => $procedure_type,
+                "amount" => $amount,
+                "payment_info" => $payment_info
             ]);
     }
 
@@ -317,8 +319,10 @@ where p.post_type = 'shop_order' and c.email=:email";
         $procedure_table = $this->db->get_query("select id from wp_procedure where order_id=:procedure_id",
             ["procedure_id" => $procedure_id]);
         if (count($procedure_table["data"]) == 0) {
-            $create_procedure = $this->create_procedure(1, $procedure_id);
-            krumo($create_procedure);
+            $create_procedure = $this->create_procedure(1, $procedure_id, 0, '');
+            if (IS_DEVELOPMENT) {
+                krumo($create_procedure);
+            }
         }
     }
 
