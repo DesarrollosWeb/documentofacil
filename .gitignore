@@ -1,6 +1,7 @@
 wp-admin/
 wp-content/
 wp-includes/
+/gestoria/vendor/
 gestoria/vendor/**
 gestoria/vendor/composer/
 .htaccess

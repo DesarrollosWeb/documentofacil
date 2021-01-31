@@ -202,10 +202,8 @@ $procedure_types = $procedure_instance->get_procedure_types();
             })
             .then(result => {
                 if (result.error) {
-                    // Show error to your customer
                     showError(result.error.message);
                 } else {
-                    // The payment has been processed!
                     orderComplete(clientSecret);
                 }
             });
