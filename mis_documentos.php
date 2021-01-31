@@ -153,7 +153,7 @@ try {
     const OtherDocuments = "8";
     let helpText = $("<small><?= $text["accepted_files"]; ?></small>", {class: "form-text text-muted"});
     let inputGroupFile = $("<div/>", {class: "form-group col input-group-file"})
-        .append(`<label class='form-label'><?= $text["document_type"]?>:</label>`, {class: "form-label"})
+        .append(`<label class='form-label'><?= $text["document"]?>:</label>`, {class: "form-label"})
         .append(inputFile)
         .append(helpText, {class: "form-text text-muted"});
     let select = $("<select/>")

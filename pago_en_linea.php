@@ -1,19 +1,21 @@
 <?php
+//region Includes
 include_once 'gestoria/constants.php';
 include_once 'gestoria/Procedure.php';
 include_once 'gestoria/Db.php';
 include_once 'gestoria/Payment.php';
 include_once 'gestoria/vendor/autoload.php';
 include_once "wp-load.php";
+//endregion
 if (!IS_DEVELOPMENT) {
     $user = wp_get_current_user();
     $_SESSION["email"] = $user->user_email;
 } else {
     $user = get_userdata(2);
     $_SESSION["email"] = "anyulled@gmail.com";
-    krumo($user);
 }
 
+$user_metadata = get_user_meta($user->ID, "", false);
 $procedure_instance = new Procedure($_SESSION["email"]);
 $procedure_types = $procedure_instance->get_procedure_types();
 ?>
@@ -39,7 +41,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
 </head>
 <body>
 <?php if (!IS_DEVELOPMENT) {
-    //get_header();
+    get_header();
 } ?>
 <div class="container">
     <div class="jumbotron">
@@ -50,6 +52,15 @@ $procedure_types = $procedure_instance->get_procedure_types();
             <div class="sr-root">
                 <div class="sr-main">
                     <form id="payment-form" class="sr-payment-form" method="post">
+                        <input id="customer" type="hidden" name="customer" value="<?= $user->display_name; ?>"/>
+                        <input id="email" type="hidden" name="email" value="<?= $user->user_email; ?>"/>
+                        <input id="phone" type="hidden" name="phone"
+                               value="<?= $user_metadata["billing_phone"][0]; ?>"/>
+                        <input id="city" type="hidden" name="city" value="<?= $user_metadata["billing_city"][0]; ?>"/>
+                        <input id="address" type="hidden" name="address"
+                               value="<?= $user_metadata["billing_address_1"][0]; ?>"/>
+                        <input id="country" type="hidden" name="country"
+                               value="<?= $user_metadata["billing_country"][0]; ?>"/>
                         <div class="form-group row">
                             <label for="concept" class="col-4 col-form-label">Concepto de pago</label>
                             <div class="col-8">
@@ -67,7 +78,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
                             <label for="amount" class="col-4 col-form-label">Introducir importe</label>
                             <div class="col-8">
                                 <div class="input-group">
-                                    <input id="amount" name="amount" type="text" class="form-control" value="100">
+                                    <input id="amount" name="amount" type="number" class="form-control" value="50">
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <i class="fa fa-euro"></i>
@@ -79,12 +90,12 @@ $procedure_types = $procedure_instance->get_procedure_types();
                         <div class="sr-combo-inputs-row">
                             <div class="sr-input sr-card-element" id="card-element"></div>
                         </div>
-                        <div class="sr-field-error alert alert-danger" id="card-errors" role="alert"></div>
+                        <div class="sr-field-error alert alert-danger d-none" id="card-errors" role="alert"></div>
                         <div class="form-group row">
                             <div class="offset-4 col-8">
                                 <button id="submit" class="btn btn-success">
                                     <div class="spinner hidden" id="spinner"></div>
-                                    <span id="button-text">Pay</span><span id="order-amount"></span>
+                                    <span id="button-text"><?= $text["pay"]; ?></span><span id="order-amount"></span>
                                 </button>
                             </div>
                         </div>
@@ -92,8 +103,8 @@ $procedure_types = $procedure_instance->get_procedure_types();
                     <div class="sr-result d-none alert alert-success">
                         <p>Payment completed<br/></p>
                         <pre>
-            <code></code>
-          </pre>
+                            <code></code>
+                        </pre>
                     </div>
                 </div>
             </div>
@@ -101,22 +112,31 @@ $procedure_types = $procedure_instance->get_procedure_types();
     </div>
 </div>
 <?php if (!IS_DEVELOPMENT) {
-    //get_footer();
+    get_footer();
 } ?>
 <script type="application/javascript">
     let stripe;
-
-    const orderData = {
-        amount: document.getElementById("amount").value,
-        items: [{id: "tramite"}],
-        currency: "eur"
+    let orderData = {
+        amount: document.getElementById("amount").value * 100,
+        currency: "eur",
+        description: `Trámite: ${$("#concept > option:selected").text()}`,
+        items: [{id: "Pago online"}],
+        metadata: [{integration_check: "accept_a_payment"}]
     };
-
-    // Disable the button until we have Stripe set up on the page
+    const $form = $("#payment-form");
 
     document.querySelector("button").disabled = true;
+    $(document).on("change", "#amount", function () {
+        orderData = {...orderData,
+        ...{
+            amount: document.getElementById("amount").value * 100,
+            description:`Trámite: ${$("#concept > option:selected").text()}`
+        }
+    };
+        $form.off();
+        createPaymentIntent();
+    });
 
-    // Show a spinner on payment submission
     const changeLoadingState = isLoading => {
         if (isLoading) {
             document.querySelector("button").disabled = true;
@@ -128,17 +148,20 @@ $procedure_types = $procedure_instance->get_procedure_types();
             document.querySelector("#button-text").classList.remove("d-none");
         }
     };
-    /* Shows a success / error message when the payment is complete */
     const orderComplete = clientSecret => {
         // Just for the purpose of the sample, show the PaymentIntent response object
         stripe.retrievePaymentIntent(clientSecret).then(result => {
-            var paymentIntent = result.paymentIntent;
-            var paymentIntentJson = JSON.stringify(paymentIntent, null, 2);
+            const paymentIntent = result.paymentIntent;
+            const paymentIntentJson = JSON.stringify(paymentIntent, null, 2);
 
-            document.querySelector(".sr-payment-form").classList.add("d-none");
-            document.querySelector("pre").textContent = paymentIntentJson;
+            $(".sr-payment-form").addClass("d-none");
+            $("pre").text(paymentIntentJson);
+            // document.querySelector(".sr-payment-form").classList.add("d-none");
+            // document.querySelector("pre").textContent = paymentIntentJson;
+            //TODO post new transaction
 
-            document.querySelector(".sr-result").classList.remove("d-none");
+            $(".sr-result").removeClass("d-none");
+            // document.querySelector(".sr-result").classList.remove("d-none");
             setTimeout(() => {
                 document.querySelector(".sr-result").classList.add("expand");
             }, 200);
@@ -146,29 +169,35 @@ $procedure_types = $procedure_instance->get_procedure_types();
             changeLoadingState(false);
         });
     };
-
-    /* ------- Post-payment helpers ------- */
     const showError = errorMsgText => {
         changeLoadingState(false);
+        $("#card-errors").removeClass("d-none");
         const errorMsg = document.querySelector(".sr-field-error");
         errorMsg.textContent = errorMsgText;
-        setTimeout(function () {
+        setTimeout(() => {
             errorMsg.textContent = "";
+            $("#card-errors").addClass("d-none");
         }, 4000);
     };
-    /*
-                     * Calls stripe.confirmCardPayment which creates a pop-up modal to
-                     * prompt the user to enter extra authentication details without leaving your page
-                     */
-    const pay = function (stripe, card, clientSecret) {
+    const pay = (stripe, card, clientSecret) => {
         changeLoadingState(true);
 
-        // Initiate the payment.
-        // If authentication is required, confirmCardPayment will automatically display a modal
         stripe
             .confirmCardPayment(clientSecret, {
                 payment_method: {
-                    card: card
+                    card: card,
+                    billing_details: {
+                        address: {
+                            city: $("#city").val(),
+                            line1: $("#address").val(),
+                            country: $("#country").val(),
+                            state: $("#state").val()
+                        },
+                        name: $("#customer").val(),
+                        email: $("#email").val(),
+                        phone: $("#phone").val(),
+
+                    }
                 }
             })
             .then(result => {
@@ -181,8 +210,6 @@ $procedure_types = $procedure_instance->get_procedure_types();
                 }
             });
     };
-
-    // Set up Stripe.js and Elements to use in checkout form
     const setupElements = data => {
         stripe = Stripe(data.publishableKey);
         const elements = stripe.elements();
@@ -211,28 +238,27 @@ $procedure_types = $procedure_instance->get_procedure_types();
             clientSecret: data.clientSecret
         };
     };
-
-    fetch("/gestoria/create-payment-intent.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(orderData)
-    })
-        .then(result => result.json())
-        .then(data => setupElements(data))
-        .then(({stripe, card, clientSecret}) => {
-            document.querySelector("button").disabled = false;
-
-            // Handle form submission.
-            const form = document.getElementById("payment-form");
-            form.addEventListener("submit", event => {
-                event.preventDefault();
-                // Initiate payment when the submit button is clicked
-                pay(stripe, card, clientSecret);
-            });
+    const createPaymentIntent = () => {
+        fetch("/gestoria/create-payment-intent.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderData)
         })
-        .catch(error => console.error(error));
+            .then(result => result.json())
+            .then(data => setupElements(data))
+            .then(({stripe, card, clientSecret}) => {
+                document.querySelector("button").disabled = false;
+                $form.submit(event => {
+                    event.preventDefault();
+                    pay(stripe, card, clientSecret);
+                });
+            })
+            .catch(error => console.error(error));
+    };
+
+    createPaymentIntent();
 </script>
 </body>
 </html>

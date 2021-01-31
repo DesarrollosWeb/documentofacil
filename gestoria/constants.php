@@ -72,6 +72,7 @@ $text = array(
     "upload_required_documents" => "Subir documentos solicitados",
     "register" => "Registrarse",
     "procedure_check" => "Comprobar el Status de tu trámite.",
+    "pay" => "Pagar",
     "procedure_select" => "¿Qué trámite vas a realizar?",
     "back_to_list" => "Volver al listado",
     "process_success" => "Operación realizada con éxito",
