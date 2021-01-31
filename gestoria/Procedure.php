@@ -38,34 +38,28 @@ class Procedure
     }
 
     private string $admin_query = "select p.id,
-       post_date as creation_date,
-       post_author,
-       order_item_name as name,
-       post_status as status,
-       concat(c.first_name,' ', c.last_name) as user ,
-       c.email,
-       um.meta_value as rol
-from wpsw_posts p
-         inner join wpsw_woocommerce_order_items oi on oi.order_id = p.ID
-         inner join wpsw_postmeta wp on p.ID = wp.post_id and meta_key = '_customer_user'
-         inner join wpsw_usermeta um on um.user_id = wp.meta_value and um.meta_key = 'wpsw_capabilities'
-         inner join wpsw_wc_customer_lookup c on c.user_id = wp.meta_value
-where p.post_type = 'shop_order'";
+        creation_date,
+       t.name as name,
+       s.status,
+       u.display_name as user,
+       u.user_email
+from wp_procedure p
+    inner join wp_procedure_status s on p.status_id=s.id
+    inner join wp_procedure_type t on t.id = p.procedure_type
+    inner join wpsw_users u on u.ID = p.user_id 
+";
 
     private string $client_query = "select p.id,
-       post_date as creation_date,
-       post_author,
-       order_item_name as name,
-       post_status as status,
-       concat(c.first_name,' ', c.last_name) as user ,
-       c.email,
-       um.meta_value as rol
-from wpsw_posts p
-         inner join wpsw_woocommerce_order_items oi on oi.order_id = p.ID
-         inner join wpsw_postmeta wp on p.ID = wp.post_id and meta_key = '_customer_user'
-         inner join wpsw_usermeta um on um.user_id = wp.meta_value and um.meta_key = 'wpsw_capabilities'
-         inner join wpsw_wc_customer_lookup c on c.user_id = wp.meta_value
-where p.post_type = 'shop_order' and c.email=:email";
+        creation_date,
+       t.name as name,
+       s.status,
+       u.display_name as user,
+       u.user_email
+from wp_procedure p
+    inner join wp_procedure_status s on p.status_id=s.id
+    inner join wp_procedure_type t on t.id = p.procedure_type
+    inner join wpsw_users u on u.ID = p.user_id 
+where u.user_email=:email";
 
     /**
      * Parses a date from a string format into a DateTime with UTC timezone.
@@ -120,14 +114,12 @@ where p.post_type = 'shop_order' and c.email=:email";
         if (isset($user_type["rol"]["administrator"])) {
             $this->is_admin = true;
             $query = $this->admin_query;
-            $count_orders_query = $this->db->get_scalar("select count(id) as orders from wpsw_posts where post_type='shop_order'");
+            $count_orders_query = $this->db->get_scalar("select count(id) as orders from wp_procedure");
         } else {
             $query = $this->client_query;
-            $count_orders_query = $this->db->get_scalar("select count(id) as orders from wpsw_posts p
-            inner join wpsw_postmeta wp on p.ID = wp.post_id and meta_key = '_customer_user'
-            inner join wpsw_wc_customer_lookup c on c.user_id = wp.meta_value
-            where p.post_type='shop_order'
-            and c.email=$this->email");
+            $count_orders_query = $this->db->get_scalar("select count(id) as orders from wp_procedure p
+            inner join wpsw_users u on p.user_id = u.ID
+            and u.user_email=$this->email");
         }
         $user_orders = $this->db->get_query($query, [
             "email" => $this->email,
@@ -138,7 +130,6 @@ where p.post_type = 'shop_order' and c.email=:email";
         }
         for ($i = 0; $i < count($user_orders["data"]); $i++) {
             $user_orders["data"][$i]["creation_date"] = self::createDateTimeFromString($user_orders["data"][$i]["creation_date"]);
-            $user_orders["data"][$i]["status"] = self::$order_statuses[$user_orders["data"][$i]["status"]];
         }
 
         $user_orders["stats"]["total_records"] = $count_orders_query;
