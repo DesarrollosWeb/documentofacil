@@ -35,6 +35,7 @@ class Payment
         Stripe::setApiKey(STRIPE_API_SECRET);
         try {
             return PaymentIntent::create([
+                'description' => $info["description"],
                 'amount' => filter_var($info["amount"], FILTER_SANITIZE_NUMBER_FLOAT),
                 'currency' => 'eur',
                 'metadata' => ['integration_check' => 'accept_a_payment'],
