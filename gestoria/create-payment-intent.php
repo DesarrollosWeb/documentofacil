@@ -14,7 +14,8 @@ $input = file_get_contents('php://input');
 $body = json_decode($input);
 
 try {
-    $paymentIntent = Payment::create_payment_intent(["amount" => $body->amount]);
+    $paymentIntent = Payment::create_payment_intent(["amount" => $body->amount,
+        "description" => $body->description]);
     $output = [
         'publishableKey' => STRIPE_API,
         'clientSecret' => $paymentIntent->client_secret,
