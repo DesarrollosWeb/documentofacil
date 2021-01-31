@@ -3,7 +3,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-define("IS_DEVELOPMENT", true);
+define("IS_DEVELOPMENT", false);
 if (IS_DEVELOPMENT) {
 // ** MySQL settings - You can get this info from your web host ** //
     /** The name of the database for WordPress */
@@ -60,9 +60,11 @@ $text = array(
     "personal_data" => "Datos personales",
     "order_status" => "Estado del pedido",
     "file_too_large" => "El archivo es demasiado grande",
+    "payment_concept" => "Concepto de pago",
     "procedure_status" => "Estado del trámite",
     "action" => "Acción",
     "first" => "⇤ Primero",
+    "online_payment"=>"Pago en línea",
     "previous" => "&laquo; Anterior",
     "next" => "Siguiente &raquo;",
     "last" => "Último ⇥",
@@ -74,6 +76,8 @@ $text = array(
     "procedure_check" => "Comprobar el Status de tu trámite.",
     "pay" => "Pagar",
     "procedure_select" => "¿Qué trámite vas a realizar?",
+    "procedure_selection" => "Seleccione un tipo de trámite",
+    "input_amount" => "Introducir importe",
     "back_to_list" => "Volver al listado",
     "process_success" => "Operación realizada con éxito",
     "add_document" => "Agregar documento",
