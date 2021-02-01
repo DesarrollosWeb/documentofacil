@@ -52,8 +52,6 @@ try {
     <div class="card" id="procedure_info">
         <div class="card-body">
             <h3 class="card-title"><?= $procedure_data["procedure"]["name"]; ?></h3>
-            <h4 class="card-subtitle mb-2 text-muted"><?= $text["order_status"]; ?>
-                : <?= $procedure_data["procedure"]["order_status"]; ?></h4>
             <h4 class="card-subtitle mb-2 text-muted"><?= $text["procedure_status"]; ?>
                 : <?= $procedure_data["procedure"]["procedure_status"]; ?></h4>
             <ul class="list-group list-group-flush">
@@ -66,10 +64,10 @@ try {
                     <strong>Email</strong>: <?= $procedure_data["procedure"]["email"]; ?></li>
                 <li class="list-group-item">
                     <strong><?= $text["creation_date"]; ?>
-                        :</strong> <?= $procedure_data["procedure"]["procedure_creation_date"]->format("d-m-Y"); ?></li>
+                        :</strong> <?= $procedure_data["procedure"]["creation_date"]->format("d-m-Y"); ?></li>
                 <li class="list-group-item">
                     <strong><?= $text["update_date"]; ?>
-                        :</strong> <?= $procedure_data["procedure"]["procedure_update_date"]->format("d-m-Y"); ?> </li>
+                        :</strong> <?= $procedure_data["procedure"]["update_date"]->format("d-m-Y"); ?> </li>
             </ul>
         </div>
     </div>
@@ -79,117 +77,52 @@ try {
         </div>
         <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
     <?php else: ?>
+        <div class="row">
+            <div class="col">
+                <div id="procedure_files">
+                    <h4><?= $text["documents"]; ?></h4>
+                    <ul class="list-group list-group-horizontal">
+                        <?php foreach ($procedure_data["files"] as $file): ?>
+                            <li class="list-group-item">
+                                <a href="<?= "https://" . $_SERVER["SERVER_NAME"] . "/" . $file["file_path"]; ?>"
+                                   target="_blank"><?= (!empty($file["document_name"])) ? $file["type"] . " - " . $file["document_name"] : $file["type"]; ?></a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <form action="" enctype='multipart/form-data' method="post">
             <input type="hidden" name="procedure_id" id="procedure_id"
                    value="<?= $procedure_data["procedure"]["procedure_id"]; ?>"/>
             <input type="hidden" name="procedure_name" value="<?= $procedure_data["procedure"]["name"] ?>"/>
             <input type="hidden" name="user" value="<?= $procedure_data["procedure"]["user"]; ?>"/>
-            <p class="form-text"><?= $text["form_instructions"]; ?></p>
             <div id="procedure_status" class="form-row">
                 <?php if (isset($user["rol"]["administrator"])): ?>
                     <div class="form-group col-md-12">
                         <label for="procedure_status" class="form-label"><?= $text["status"]; ?></label>
                         <select name="procedure_status" id="procedure_status" class="form-control">
-                            <?php foreach ($procedure->procedure_statuses as $key => $value): ?>
-                                <option <?php echo (strcasecmp($procedure_data["procedure"]["procedure_status"], $value) == 0) ? "selected" : ""; ?>
-                                        value="<?= $key; ?>"><?= $value; ?></option>
+                            <?php foreach ($procedure->get_procedure_status() as $status): ?>
+                                <option <?php echo (strcasecmp($procedure_data["procedure"]["procedure_status"], $status["status"]) == 0) ? "selected" : ""; ?>
+                                        value="<?= $status["id"]; ?>"><?= $status["status"]; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                 <?php endif; ?>
             </div>
-            <div id="procedure_files">
-                <h4><?= $text["documents"]; ?></h4>
-                <?php foreach ($procedure_data["files"] as $file): ?>
-                    <div class="form-row procedure-files">
-                        <?php if ($file["file_path"] != "/"): ?>
-                            <div class="form-group col-md-12">
-                                <input type="hidden" name="procedure_file_id" value="<?= $file["id"]; ?>">
-                                &raquo; <a href="<?= $file["file_path"]; ?>" target="_blank"><i
-                                            class="far fa-file"></i> <?= $file["type"]; ?></a>
-                            </div>
-                        <?php else: ?>
-                            <div class="form-group col-md-8 input-group-file">
-                                <label class="form-label" for="file"><?= $text["document"]; ?>:</label>
-                                <input name="document[]" type="file"
-                                       accept="application/pdf, image/jpeg, image/png,application/zip"
-                                       class="form-control-file"/>
-                                <small class="form-text text-muted">
-                                    <?= $text["accepted_files"]; ?>
-                                </small>
-                            </div>
-                            <div class="form-group col-md-4 input-group-document-type">
-                                <label for="document_type" class="form-label"><?= $text["document_type"]; ?></label>
-                                <select id="document_type" name="document_type[]" class="form-control">
-                                    <?php foreach ($document_types as $key => $value): ?>
-                                        <option value="<?= $key ?>"><?= $value; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        <?php endif; ?>
+
+            <?php if (isset($user["rol"]["administrator"])): ?>
+                <div id="procedure_actions" class="form-row">
+                    <div class="form-group col-md-12 text-center">
+                        <button type="button" onclick="history.back();"
+                                class="btn btn-danger"><?= $text["back"]; ?></button>
+                        <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
                     </div>
-                <?php endforeach; ?>
-            </div>
-            <?php if ($procedure_data["procedure"]["order_status"] == ORDER_COMPLETED): ?>
-                <button id="add_document" class="btn btn-info" type="button"><?= $text["add_document"]; ?></button>
-            <?php else: ?>
-                <div class="alert alert-info"><?= $text["order_not_completed"]; ?></div>
-            <?php endif; ?>
-            <div id="procedure_actions" class="form-row">
-                <div class="form-group col-md-12 text-center">
-                    <button type="button" onclick="history.back();"
-                            class="btn btn-danger"><?= $text["back"]; ?></button>
-                    <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
                 </div>
-            </div>
+            <?php endif; ?>
         </form>
     <?php endif; ?>
 </div>
-<script type="application/javascript">
-    let documentTypes = [
-        "Pasaporte",
-        "Acta de nacimiento",
-        "Acta de matrimonio",
-        "Antecedentes penales",
-        "Carta de solteria",
-        "Declaracion de edictos",
-        "Homologaciones",
-        "Legalizaciones",
-        "Apostilla de la Haya"];
-    let formRow = $("<div/>", {class: "form-row procedure-files"});
-    let inputFile = $("<input/>", {
-        type: "file",
-        name: "document[]",
-        accept: "application/pdf, image/jpeg, image/png,application/zip",
-        class: "form-control-file"
-    });
-    let helpText = $("<small><?= $text["accepted_files"]; ?></small>");
-    let inputGroupFile = $("<div/>", {class: "form-group col-md-8 input-group-file"})
-        .append(`<label class='form-label'><?= $text["document_type"]?>:</label>`, {class: "form-label"})
-        .append(inputFile)
-        .append(helpText);
-    let select = $("<select/>")
-        .addClass("form-control")
-        .attr("name", "document_type[]");
-    $.each(documentTypes, function (index, value) {
-        $(`<option value="${index}">${value}</option/>`).appendTo(select);
-    });
-    let inputGroupDocumentType = $("<div/>", {class: "form-group col-md-4 input-group-document-type"})
-        .append(`<label class='form-label'><?= $text["document_type"]?>: </label>`)
-        .append(select);
-    formRow.append(inputGroupFile).append(inputGroupDocumentType);
-    $("#add_document").click(function () {
-        $("#procedure_files").append(formRow.clone());
-    });
-    $(document).on("change", ".form-control-file", function () {
-        console.log("input file changed");
-        let fileSize = parseInt(this.files[0].size) / 1024;
-        if (fileSize > 10000) {
-            alert("<?= $text["file_too_large"];?>");
-            this.value = null;
-        }
-    });
-</script>
 <?php if (!IS_DEVELOPMENT) {
     get_footer();
 } ?>

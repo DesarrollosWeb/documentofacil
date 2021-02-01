@@ -18,7 +18,7 @@ if (!IS_DEVELOPMENT) {
 }
 $procedure = new Procedure($_SESSION["email"]);
 $current_page = 1;
-$items_per_page = 5;
+$items_per_page = 10;
 $total_pages = 0;
 if (array_key_exists("page", $_GET)) {
     $current_page = filter_var($_GET["page"], FILTER_SANITIZE_NUMBER_INT);

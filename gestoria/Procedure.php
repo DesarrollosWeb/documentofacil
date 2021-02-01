@@ -8,6 +8,7 @@ include_once "Db.php";
 
 class Procedure
 {
+    const DATA = "data";
     private string $email;
 
     private Db $db;
@@ -88,10 +89,10 @@ where u.user_email=:email";
         from wpsw_users
         inner join wpsw_usermeta wu on wpsw_users.ID = wu.user_id and wu.meta_key = 'wpsw_capabilities'
         where user_email = :email", ["email" => $email]);
-        if (count($user_type["data"]) > 0) {
-            for ($i = 0; $i < count($user_type["data"]); $i++) {
-                $user_type["data"][$i]["rol"] = unserialize($user_type["data"][$i]["rol"]);
-                $user_type["data"][$i]["display_name"] = URLify::slug($user_type["data"][$i]["display_name"]);
+        if (count($user_type[self::DATA]) > 0) {
+            for ($i = 0; $i < count($user_type[self::DATA]); $i++) {
+                $user_type[self::DATA][$i]["rol"] = unserialize($user_type[self::DATA][$i]["rol"]);
+                $user_type[self::DATA][$i]["display_name"] = URLify::slug($user_type[self::DATA][$i]["display_name"]);
             }
         } else {
             throw new Exception("User not found");
@@ -99,7 +100,7 @@ where u.user_email=:email";
         if (IS_DEVELOPMENT) {
             krumo($user_type);
         }
-        return $user_type["data"][0];
+        return $user_type[self::DATA][0];
     }
 
     /**
@@ -128,8 +129,8 @@ where u.user_email=:email";
         if (IS_DEVELOPMENT) {
             krumo($user_orders);
         }
-        for ($i = 0; $i < count($user_orders["data"]); $i++) {
-            $user_orders["data"][$i]["creation_date"] = self::createDateTimeFromString($user_orders["data"][$i]["creation_date"]);
+        for ($i = 0; $i < count($user_orders[self::DATA]); $i++) {
+            $user_orders[self::DATA][$i]["creation_date"] = self::createDateTimeFromString($user_orders[self::DATA][$i]["creation_date"]);
         }
 
         $user_orders["stats"]["total_records"] = $count_orders_query;
@@ -138,42 +139,37 @@ where u.user_email=:email";
 
     public function get_order_and_procedure(string $procedure_id): array
     {
-        $this->create_procedure_if_nonexistent($procedure_id);
         $procedure_data = $this->db->get_query("select p.id,
-       post_date                              as creation_date,
-       order_item_name                        as name,
-       post_status                            as order_status,
-       concat(c.first_name, ' ', c.last_name) as user,
-       c.email,
-       proc.id                                as procedure_id,
-       oi.order_id                            as procedure_order_id,
+       creation_date,
+       update_date,
+       t.name,
+       ps.status                            as order_status,
+       u.user_nicename as user,
+       u.user_email as email,
+       p.id                                as procedure_id,
        creation_date                          as procedure_creation_date,
        update_date                            as procedure_update_date,
        ps.status                              as procedure_status
-        from wpsw_posts p
-         inner join wpsw_woocommerce_order_items oi on oi.order_id = p.ID
-         inner join wpsw_postmeta wp on p.ID = wp.post_id and meta_key = '_customer_user'
-         inner join wpsw_wc_customer_lookup c on c.user_id = wp.meta_value
-         inner join wp_procedure proc on proc.order_id = p.ID
-         inner join wp_procedure_status ps on ps.id = proc.status_id
-        where p.ID=:procedure_id", ["procedure_id" => $procedure_id]);
-        $procedure_files = $this->db->get_query("select pf.id, file_path, ft.id, ft.type
+        from wp_procedure p
+            inner join wp_procedure_status ps on ps.id = p.status_id
+            inner join wp_procedure_type t on t.id = p.procedure_type
+            inner join wpsw_users u on u.ID = p.user_id
+            where p.ID=:procedure_id", ["procedure_id" => $procedure_id]);
+        $procedure_files = $this->db->get_query("select pf.id, file_path, ft.id, ft.type, pf.document_name
 		from wp_procedure_file pf
          left outer join wp_procedure_file_type ft
-         on pf.type = ft.id where pf.procedure_id= :procedure_id", ["procedure_id" => $procedure_data["data"][0]["procedure_id"]]);
-        for ($i = 0; $i < count($procedure_data["data"]); $i++) {
-            $procedure_data["data"][$i]["order_status"] = self::$order_statuses[$procedure_data["data"][$i]["order_status"]];
-            $procedure_data["data"][$i]["creation_date"] = self::createDateTimeFromString($procedure_data["data"][$i]["creation_date"]);
-            $procedure_data["data"][$i]["procedure_creation_date"] = self::createDateTimeFromString($procedure_data["data"][$i]["procedure_creation_date"]);
-            $procedure_data["data"][$i]["procedure_update_date"] = self::createDateTimeFromString($procedure_data["data"][$i]["procedure_update_date"]);
+         on pf.type = ft.id where pf.user_email= :user_email", ["user_email" => $procedure_data[self::DATA][0]["email"]]);
+        for ($i = 0; $i < count($procedure_data[self::DATA]); $i++) {
+            $procedure_data[self::DATA][$i]["creation_date"] = self::createDateTimeFromString($procedure_data[self::DATA][$i]["creation_date"]);
+            $procedure_data[self::DATA][$i]["update_date"] = self::createDateTimeFromString($procedure_data[self::DATA][$i]["update_date"]);
         }
         if (WP_DEBUG) {
             krumo($procedure_data, $procedure_files);
         }
 
         return [
-            "procedure" => $procedure_data["data"][0],
-            "files" => $procedure_files["data"]
+            "procedure" => $procedure_data[self::DATA][0],
+            "files" => $procedure_files[self::DATA]
         ];
     }
 
@@ -188,6 +184,11 @@ where u.user_email=:email";
                 "amount" => $amount,
                 "payment_info" => $payment_info
             ]);
+    }
+
+    public function get_procedure_status()
+    {
+        return $this->db->get_query("select id, status from wp_procedure_status")[self::DATA];
     }
 
     public function change_procedure_status(string $procedure_id, int $status): bool
@@ -229,7 +230,7 @@ where u.user_email=:email";
      */
     public function get_document_types(): array
     {
-        return $this->db->get_query("select id, type from wp_procedure_file_type")["data"];
+        return $this->db->get_query("select id, type from wp_procedure_file_type")[self::DATA];
     }
 
     /**
@@ -249,7 +250,7 @@ where u.user_email=:email";
      */
     public function get_procedure_types(): array
     {
-        return $this->db->get_query("select id, name from wp_procedure_type")["data"];
+        return $this->db->get_query("select id, name from wp_procedure_type")[self::DATA];
     }
 
     /**
@@ -290,41 +291,6 @@ where u.user_email=:email";
             "db_result" => $db_result,
             "move_file_result" => $result
         ];
-    }
-
-    /**
-     * Is user admin
-     * @return bool
-     */
-    public function isAdmin(): bool
-    {
-        return $this->is_admin;
-    }
-
-    /**
-     * checks if the procedure exists and creates one if non existent
-     * @param string $procedure_id procedure id
-     */
-    private function create_procedure_if_nonexistent(string $procedure_id): void
-    {
-        $procedure_table = $this->db->get_query("select id from wp_procedure where order_id=:procedure_id",
-            ["procedure_id" => $procedure_id]);
-        if (count($procedure_table["data"]) == 0) {
-            $create_procedure = $this->create_procedure(1, $procedure_id, 0, '');
-            if (IS_DEVELOPMENT) {
-                krumo($create_procedure);
-            }
-        }
-    }
-
-    /**
-     * Checks if the user exists
-     * @param WP_User|null $user
-     * @return bool
-     */
-    public static function user_is_null(?WP_User $user): bool
-    {
-        return isset($user) && $user->ID == 0;
     }
 
     /**
