@@ -115,7 +115,7 @@ try {
                 <div id="procedure_actions" class="form-row">
                     <div class="form-group col-md-12 text-center">
                         <button type="button" onclick="history.back();"
-                                class="btn btn-danger"><?= $text["back"]; ?></button>
+                                class="btn btn-secondary"><?= $text["back"]; ?></button>
                         <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
                     </div>
                 </div>

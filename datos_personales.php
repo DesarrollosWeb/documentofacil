@@ -189,7 +189,7 @@ if (isset($user)) {
                 <div class="form-group row">
                     <div class="offset-4 col-8">
                         <button name="submit" type="submit" class="btn btn-success">Enviar</button>
-                        <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
+                        <a href="tramites.php" class="btn btn-secondary"><?= $text["back"]; ?></a>
                     </div>
                 </div>
             </form>

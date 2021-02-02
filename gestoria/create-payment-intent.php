@@ -14,7 +14,9 @@ $input = file_get_contents('php://input');
 $body = json_decode($input);
 
 try {
-    $paymentIntent = Payment::create_payment_intent(["amount" => $body->amount,
+    $paymentIntent = Payment::create_payment_intent([
+        "amount" => $body->amount,
+        "items" => $body->items,
         "description" => $body->description]);
     $output = [
         'publishableKey' => STRIPE_API,
@@ -22,12 +24,12 @@ try {
     ];
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode([
+    $output = [
         "error" => $e->getMessage(),
         "file" => $e->getFile(),
         "trace" => $e->getTraceAsString(),
         "line" => $e->getLine()
-    ]);
+    ];
 }
 
 echo json_encode($output);

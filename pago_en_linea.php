@@ -98,13 +98,13 @@ $procedure_types = $procedure_instance->get_procedure_types();
                                     <div class="spinner hidden" id="spinner"></div>
                                     <span id="button-text"><?= $text["pay"]; ?></span><span id="order-amount"></span>
                                 </button>
-                                <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
+                                <a href="tramites.php" class="btn btn-secondary"><?= $text["back"]; ?></a>
                             </div>
                         </div>
                     </form>
                     <div class="sr-result d-none alert alert-success">
                         <h4><?= $text["process_success"]; ?></h4>
-                        <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
+                        <a href="tramites.php" class="btn btn-secondary"><?= $text["back"]; ?></a>
                     </div>
                 </div>
             </div>
@@ -180,7 +180,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
             changeLoadingState(false);
         });
     };
-    const defaultIfEmpty = value => value != "" ? value : "N/A";
+    const defaultIfEmpty = value => value !== "" ? value : "N/A";
     const showError = errorMsgText => {
         changeLoadingState(false);
         $("#card-errors").removeClass("d-none");

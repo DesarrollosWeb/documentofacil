@@ -125,7 +125,7 @@ try {
                     <div class="alert alert-success">
                         <span><?= $text["no_results"]; ?></span>
                     </div>
-                    <a href="tramites.php" class="btn btn-danger"><?= $text["back"]; ?></a>
+                    <a href="tramites.php" class="btn btn-secondary"><?= $text["back"]; ?></a>
                 </div>
             <?php endif; ?>
         </div>
