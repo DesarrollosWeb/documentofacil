@@ -225,12 +225,12 @@ $procedure_types = $procedure_instance->get_procedure_types();
         const elements = stripe.elements();
         const style = {
             base: {
-                color: "#32325d",
+                color: "#000",
                 fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
                 fontSmoothing: "antialiased",
                 fontSize: "16px",
                 "::placeholder": {
-                    color: "#aab7c4"
+                    color: "#282626"
                 }
             },
             invalid: {

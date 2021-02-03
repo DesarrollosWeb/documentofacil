@@ -66,6 +66,7 @@ if (!IS_DEVELOPMENT) {
                     <li class="list-group-item"><a href="mis_documentos.php"><?= $text["my_documents"]; ?></a></li>
                     <li class="list-group-item"><a
                                 target="_blank"
+                                rel="noopener noreferrer"
                                 href="mailto:info@documentofacil.com?subject=Solicitud%20Info"><?= $text["contact_us"]; ?></a>
                     </li>
                     <li class="list-group-item">
