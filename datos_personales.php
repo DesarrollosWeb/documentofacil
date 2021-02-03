@@ -95,21 +95,21 @@ if (isset($user)) {
         <div class="col">
             <form method="post" action="">
                 <div class="form-group row">
-                    <label for="first_name" class="col-4 col-form-label">Nombre</label>
+                    <label for="first_name" class="col-4 col-form-label"><?= $text["name"]; ?></label>
                     <div class="col-8">
                         <input id="first_name" name="first_name" type="text" required="required" class="form-control"
                                value="<?= $user_metadata["first_name"][0]; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="last_name" class="col-4 col-form-label">Apellido</label>
+                    <label for="last_name" class="col-4 col-form-label"><?= $text["lastname"]; ?></label>
                     <div class="col-8">
                         <input id="last_name" name="last_name" type="text" required="required" class="form-control"
                                value="<?= $user_metadata["last_name"][0]; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="document_type2" class="col-4 col-form-label">Tipo documento</label>
+                    <label for="document_type2" class="col-4 col-form-label"><?= $text["document_type"]; ?></label>
                     <div class="col-8">
                         <select id="document_type2" name="document_type2" required="required" class="custom-select">
                             <?php foreach ($document_types as $key => $value): ?>
@@ -119,7 +119,7 @@ if (isset($user)) {
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="document_number" class="col-4 col-form-label">Numero documento</label>
+                    <label for="document_number" class="col-4 col-form-label"><?= $text["document_number"]; ?></label>
                     <div class="col-8">
                         <input id="document_number" name="document_number" type="text" required="required"
                                class="form-control"
@@ -127,21 +127,21 @@ if (isset($user)) {
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="billing_address_1" class="col-4 col-form-label">Direccion</label>
+                    <label for="billing_address_1" class="col-4 col-form-label"><?= $text["address"]; ?></label>
                     <div class="col-8">
                         <input id="billing_address_1" name="billing_address_1" type="text" class="form-control"
                                value="<?= $user_metadata["billing_address_1"][0]; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="billing_city" class="col-4 col-form-label">Ciudad</label>
+                    <label for="billing_city" class="col-4 col-form-label"><?= $text["city"]; ?></label>
                     <div class="col-8">
                         <input id="billing_city" name="billing_city" type="text" class="form-control"
                                value="<?= $user_metadata["billing_city"][0]; ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="billing_state" class="col-4 col-form-label">Provincia</label>
+                    <label for="billing_state" class="col-4 col-form-label"><?= $text["province"]; ?></label>
                     <div class="col-8">
                         <select name="billing_state" id="billing_state" class="custom-select">
                             <?php foreach ($states as $key => $value): ?>
@@ -151,7 +151,7 @@ if (isset($user)) {
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="billing_postcode" class="col-4 col-form-label">Código Postal</label>
+                    <label for="billing_postcode" class="col-4 col-form-label"><?= $text["postal_code"]; ?></label>
                     <div class="col-8">
                         <input id="billing_postcode" name="billing_postcode" type="text" class="form-control"
                                maxlength="5"
@@ -159,7 +159,7 @@ if (isset($user)) {
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="billing_phone" class="col-4 col-form-label">Teléfono</label>
+                    <label for="billing_phone" class="col-4 col-form-label"><?= $text["telephone"]; ?></label>
                     <div class="col-8">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -180,7 +180,7 @@ if (isset($user)) {
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="nationality" class="col-4 col-form-label">Nacionalidad</label>
+                    <label for="nationality" class="col-4 col-form-label"><?= $text["nationality"]; ?></label>
                     <div class="col-8">
                         <input id="nationality" name="nationality" type="text" class="form-control"
                                value="<?= $user_metadata["nationality"][0]; ?>">
@@ -188,7 +188,7 @@ if (isset($user)) {
                 </div>
                 <div class="form-group row">
                     <div class="offset-4 col-8">
-                        <button name="submit" type="submit" class="btn btn-success">Enviar</button>
+                        <button name="submit" type="submit" class="btn btn-success"><?= $text["update"]; ?></button>
                         <a href="tramites.php" class="btn btn-secondary"><?= $text["back"]; ?></a>
                     </div>
                 </div>

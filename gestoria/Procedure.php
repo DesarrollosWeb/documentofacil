@@ -48,6 +48,7 @@ from wp_procedure p
     inner join wp_procedure_status s on p.status_id=s.id
     inner join wp_procedure_type t on t.id = p.procedure_type
     inner join wpsw_users u on u.ID = p.user_id 
+    order by p.update_date desc 
 ";
 
     private string $client_query = "select p.id,
@@ -59,8 +60,9 @@ from wp_procedure p
 from wp_procedure p
     inner join wp_procedure_status s on p.status_id=s.id
     inner join wp_procedure_type t on t.id = p.procedure_type
-    inner join wpsw_users u on u.ID = p.user_id 
-where u.user_email=:email";
+    inner join wpsw_users u on u.ID = p.user_id
+    where u.user_email=:email
+    order by p.update_date desc";
 
     /**
      * Parses a date from a string format into a DateTime with UTC timezone.
@@ -149,7 +151,8 @@ where u.user_email=:email";
        p.id                                as procedure_id,
        creation_date                          as procedure_creation_date,
        update_date                            as procedure_update_date,
-       ps.status                              as procedure_status
+       ps.status                              as procedure_status,
+       p.user_id
         from wp_procedure p
             inner join wp_procedure_status ps on ps.id = p.status_id
             inner join wp_procedure_type t on t.id = p.procedure_type
@@ -179,7 +182,7 @@ where u.user_email=:email";
  			values(:user_id, :status_id, :procedure_type, :amount, :payment_info) ",
             [
                 "user_id" => $user_id,
-                "status_id" => 1,
+                "status_id" => 0,
                 "procedure_type" => $procedure_type,
                 "amount" => $amount,
                 "payment_info" => $payment_info
@@ -267,6 +270,9 @@ where u.user_email=:email";
         }
         $result = [];
         $db_result = [];
+        if (isset($post["procedure_status"])) {
+            $this->change_procedure_status($post["procedure_id"], $post["procedure_status"]);
+        }
 
         if (!empty($files)) {
             $path = "tramites" . "/" . URLify::slug($post["user"]) . "/";

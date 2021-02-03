@@ -28,6 +28,14 @@
     margin-top: 20px;
 }
 
+
+.card_info {
+    text-align: right;
+    font-size: 14px;
+    color: #6C757D;
+    font-family: Montserrat, Sans-serif;
+}
+
 .spinner,
 .spinner:before,
 .spinner:after {

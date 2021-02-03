@@ -16,6 +16,7 @@ if (isset($_POST["submit"])) {
     $result = $procedure->process($_POST, $_FILES);
 }
 $procedure_data = $procedure->get_order_and_procedure($procedure_id);
+$user_metadata = get_user_meta($procedure_data["procedure"]["user_id"], "", false);
 try {
     $user = $procedure->get_user_type($_SESSION["email"]);
     if (IS_DEVELOPMENT) {
@@ -49,78 +50,98 @@ try {
     get_header();
 } ?>
 <div class="container">
-    <div class="card" id="procedure_info">
-        <div class="card-body">
-            <h3 class="card-title"><?= $procedure_data["procedure"]["name"]; ?></h3>
-            <h4 class="card-subtitle mb-2 text-muted"><?= $text["procedure_status"]; ?>
-                : <?= $procedure_data["procedure"]["procedure_status"]; ?></h4>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <strong><?= $text["order_date"]; ?></strong> <?= $procedure_data["procedure"]["creation_date"]->format("d-m-Y"); ?>
-                </li>
-                <li class="list-group-item">
-                    <strong><?= $text["user"]; ?></strong>: <?= $procedure_data["procedure"]["user"]; ?></li>
-                <li class="list-group-item">
-                    <strong>Email</strong>: <?= $procedure_data["procedure"]["email"]; ?></li>
-                <li class="list-group-item">
-                    <strong><?= $text["creation_date"]; ?>
-                        :</strong> <?= $procedure_data["procedure"]["creation_date"]->format("d-m-Y"); ?></li>
-                <li class="list-group-item">
-                    <strong><?= $text["update_date"]; ?>
-                        :</strong> <?= $procedure_data["procedure"]["update_date"]->format("d-m-Y"); ?> </li>
-            </ul>
-        </div>
-    </div>
-    <?php if (isset($result)): ?>
-        <div class="alert alert-info">
-            <?= $text["process_success"]; ?>.
-        </div>
-        <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
-    <?php else: ?>
-        <div class="row">
-            <div class="col">
-                <div id="procedure_files">
-                    <h4><?= $text["documents"]; ?></h4>
-                    <ul class="list-group list-group-horizontal">
-                        <?php foreach ($procedure_data["files"] as $file): ?>
-                            <li class="list-group-item">
-                                <a href="<?= "https://" . $_SERVER["SERVER_NAME"] . "/" . $file["file_path"]; ?>"
-                                   target="_blank"><?= (!empty($file["document_name"])) ? $file["type"] . " - " . $file["document_name"] : $file["type"]; ?></a>
-                            </li>
-                        <?php endforeach; ?>
+    <div class="row">
+        <div class="col">
+            <div class="card" id="procedure_info">
+                <div class="card-body">
+                    <h3 class="card-title"><?= $procedure_data["procedure"]["name"]; ?></h3>
+                    <h4 class="card-subtitle mb-2 text-muted"><?= $text["procedure_status"]; ?>
+                        : <?= $procedure_data["procedure"]["procedure_status"]; ?></h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong><?= $text["user"]; ?></strong>: <?= $procedure_data["procedure"]["user"]; ?></li>
+                        <li class="list-group-item">
+                            <strong>Email</strong>: <?= $procedure_data["procedure"]["email"]; ?></li>
+                        <li class="list-group-item">
+                            <strong><?= $text["creation_date"]; ?>
+                                :</strong> <?= $procedure_data["procedure"]["creation_date"]->format("d-m-Y"); ?></li>
+                        <li class="list-group-item">
+                            <strong><?= $text["update_date"]; ?>
+                                :</strong> <?= $procedure_data["procedure"]["update_date"]->format("d-m-Y"); ?> </li>
                     </ul>
                 </div>
             </div>
         </div>
-        <form action="" enctype='multipart/form-data' method="post">
-            <input type="hidden" name="procedure_id" id="procedure_id"
-                   value="<?= $procedure_data["procedure"]["procedure_id"]; ?>"/>
-            <input type="hidden" name="procedure_name" value="<?= $procedure_data["procedure"]["name"] ?>"/>
-            <input type="hidden" name="user" value="<?= $procedure_data["procedure"]["user"]; ?>"/>
-            <div id="procedure_status" class="form-row">
-                <?php if (isset($user["rol"]["administrator"])): ?>
-                    <div class="form-group col-md-12">
-                        <label for="procedure_status" class="form-label"><?= $text["status"]; ?></label>
-                        <select name="procedure_status" id="procedure_status" class="form-control">
-                            <?php foreach ($procedure->get_procedure_status() as $status): ?>
-                                <option <?php echo (strcasecmp($procedure_data["procedure"]["procedure_status"], $status["status"]) == 0) ? "selected" : ""; ?>
-                                        value="<?= $status["id"]; ?>"><?= $status["status"]; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endif; ?>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title"><?= $text["personal_data"]; ?></h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong><?= $text["document"]; ?></strong>
+                            : <?= $user_metadata["document_type2"][0] . " - " . $user_metadata["document_number"][0]; ?>
+                        </li>
+                        <li class="list-group-item"><strong><?= $text["address"]; ?></strong>
+                            : <?= $user_metadata["billing_address_1"][0] . ", " . $user_metadata["billing_city"][0] . ". " . $user_metadata["billing_state"][0] . ", " . $user_metadata["billing_postcode"][0]; ?>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <div id="procedure_files">
+                <h4><?= $text["documents"]; ?></h4>
+                <ul class="list-group list-group-horizontal">
+                    <?php foreach ($procedure_data["files"] as $file): ?>
+                        <li class="list-group-item">
+                            <a href="<?= "https://" . $_SERVER["SERVER_NAME"] . "/" . $file["file_path"]; ?>"
+                               target="_blank"><?= (!empty($file["document_name"])) ? $file["type"] . " - " . $file["document_name"] : $file["type"]; ?></a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <form action="" enctype='multipart/form-data' method="post">
+        <input type="hidden" name="procedure_id" id="procedure_id"
+               value="<?= $procedure_data["procedure"]["procedure_id"]; ?>"/>
+        <input type="hidden" name="procedure_name" value="<?= $procedure_data["procedure"]["name"] ?>"/>
+        <input type="hidden" name="user" value="<?= $procedure_data["procedure"]["user"]; ?>"/>
+        <div id="procedure_status" class="form-row">
             <?php if (isset($user["rol"]["administrator"])): ?>
-                <div id="procedure_actions" class="form-row">
-                    <div class="form-group col-md-12 text-center">
-                        <button type="button" onclick="history.back();"
-                                class="btn btn-secondary"><?= $text["back"]; ?></button>
-                        <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
-                    </div>
+                <div class="form-group col-md-12">
+                    <label for="procedure_status" class="form-label"><?= $text["status"]; ?></label>
+                    <select name="procedure_status" id="procedure_status" class="form-control">
+                        <?php foreach ($procedure->get_procedure_status() as $status): ?>
+                            <option <?php echo (strcasecmp($procedure_data["procedure"]["procedure_status"], $status["status"]) == 0) ? "selected" : ""; ?>
+                                    value="<?= $status["id"]; ?>"><?= $status["status"]; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             <?php endif; ?>
-        </form>
+        </div>
+
+        <?php if (isset($user["rol"]["administrator"])): ?>
+            <div id="procedure_actions" class="form-row">
+                <div class="form-group col-md-12 text-center">
+                    <button type="button" onclick="history.back();"
+                            class="btn btn-secondary"><?= $text["back"]; ?></button>
+                    <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
+                </div>
+            </div>
+        <?php endif; ?>
+    </form>
+    <?php if (isset($result)): ?>
+        <br/>
+        <div class="alert alert-info">
+            <?= $text["process_success"]; ?>.
+        </div>
+        <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
     <?php endif; ?>
 </div>
 <?php if (!IS_DEVELOPMENT) {

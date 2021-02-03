@@ -52,6 +52,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
             <div class="sr-root">
                 <div class="sr-main">
                     <form id="payment-form" class="sr-payment-form" method="post">
+                        <!--region hidden fields-->
                         <input id="user_id" type="hidden" name="user_id" value="<?= $user->ID; ?>">
                         <input id="customer" type="hidden" name="customer" value="<?= $user->display_name; ?>"/>
                         <input id="email" type="hidden" name="email" value="<?= $user->user_email; ?>"/>
@@ -62,6 +63,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
                                value="<?= $user_metadata["billing_address_1"][0]; ?>"/>
                         <input id="country" type="hidden" name="country"
                                value="<?= $user_metadata["billing_country"][0]; ?>"/>
+                        <!--endregion-->
                         <div class="form-group row">
                             <label for="concept" class="col-4 col-form-label"><?= $text["payment_concept"]; ?></label>
                             <div class="col-8">
@@ -79,13 +81,19 @@ $procedure_types = $procedure_instance->get_procedure_types();
                             <label for="amount" class="col-4 col-form-label"><?= $text["input_amount"]; ?></label>
                             <div class="col-8">
                                 <div class="input-group">
-                                    <input id="amount" name="amount" type="number" class="form-control" value="50">
+                                    <input id="amount" name="amount" type="number" class="form-control" value="100"/>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <i class="fa fa-euro"></i>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col card_info d-none">
+                                <?= $text["input_expiry_date"]; ?> <a
+                                        href="https://www.bbva.com/es/que-es-el-ccv-o-cvc-en-las-tarjetas-de-credito/"><?= $text["cvc_code"]; ?></a>
                             </div>
                         </div>
                         <div class="sr-combo-inputs-row">
@@ -127,15 +135,17 @@ $procedure_types = $procedure_instance->get_procedure_types();
 
     document.querySelector("button").disabled = true;
     $(document).on("change", "select, input", () => {
-        orderData = {
-            ...orderData,
-            ...{
-                amount: document.getElementById("amount").value * 100,
-                description: `Trámite: ${$("#concept > option:selected").text()}`
-            }
-        };
-        $form.off();
-        createPaymentIntent();
+        if ($("#amount").val() > 0) {
+            orderData = {
+                ...orderData,
+                ...{
+                    amount: document.getElementById("amount").value * 100,
+                    description: `Trámite: ${$("#concept > option:selected").text()}`
+                }
+            };
+            $form.off();
+            createPaymentIntent();
+        }
     });
 
     const changeLoadingState = isLoading => {
@@ -223,6 +233,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
     const setupElements = data => {
         stripe = Stripe(data.publishableKey);
         const elements = stripe.elements();
+
         const style = {
             base: {
                 color: "#000",
@@ -239,7 +250,7 @@ $procedure_types = $procedure_instance->get_procedure_types();
             }
         };
 
-        const card = elements.create("card", {style: style});
+        const card = elements.create("card", {style: style, hidePostalCode: true});
         card.mount("#card-element");
 
         return {
