@@ -68,7 +68,7 @@ try {
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <?php if (isset($procedure_data) && count($procedure_data["data"]) > 0): ?>
+            <?php if (isset($procedure_data) && isset($procedure_data["data"]) && count($procedure_data["data"]) > 0): ?>
                 <h4><?= $text["procedure_check"]; ?></h4>
                 <table class="table">
                     <caption><?= $text["procedure_list"]; ?></caption>
@@ -77,6 +77,7 @@ try {
                         <th id="1" scope="col"><?= $text["name"]; ?></th>
                         <th id="2" scope="col"><?= $text["user"] ?></th>
                         <th id="3" scope="col"><?= $text["creation_date"] ?></th>
+                        <th id="3" scope="col"><?= $text["update_date"] ?></th>
                         <th id="4" scope="col"><?= $text["status"] ?></th>
                         <th id="4" scope="col"><?= $text["action"] ?></th>
                     </tr>
@@ -87,6 +88,7 @@ try {
                             <td><?= $row["name"]; ?> </td>
                             <td><?= $row["user"]; ?> </td>
                             <td><?= $row["creation_date"]->format("d-m-Y"); ?> </td>
+                            <td><?= $row["update_date"]->format("d-m-Y"); ?> </td>
                             <td><p class="badge badge-secondary"><?= $row["status"]; ?> </p></td>
                             <td><a class="btn btn-success btn-sm"
                                    href="formulario.php?procedure_id=<?= $row["id"]; ?>"><?= $text["open"] ?></a>
