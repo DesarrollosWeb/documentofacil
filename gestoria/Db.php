@@ -47,6 +47,7 @@ class DB
         $result = null;
         try {
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
             $stmt = $this->connection->prepare($query);
             $stmt->execute($params);
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -54,7 +55,7 @@ class DB
             $result['stats']['affected_rows'] = $stmt->rowCount();
         } catch (PDOException $e) {
             if (IS_DEVELOPMENT) {
-                krumo($result);
+                krumo($query, $params, $result);
             }
             $result["error"] = $e->getMessage();
         }

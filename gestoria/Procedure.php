@@ -39,7 +39,8 @@ class Procedure
     }
 
     private string $admin_query = "select p.id,
-        creation_date,
+       creation_date,
+       update_date,
        t.name as name,
        s.status,
        u.display_name as user,
@@ -48,11 +49,12 @@ from wp_procedure p
     inner join wp_procedure_status s on p.status_id=s.id
     inner join wp_procedure_type t on t.id = p.procedure_type
     inner join wpsw_users u on u.ID = p.user_id 
-    order by p.update_date desc 
+    order by p.update_date desc LIMIT :start, :items 
 ";
 
     private string $client_query = "select p.id,
-        creation_date,
+       creation_date,
+       update_date,
        t.name as name,
        s.status,
        u.display_name as user,
@@ -114,25 +116,31 @@ from wp_procedure p
     public function get_orders_current_user(array $limit = ["start" => 0, "items" => 10]): array
     {
         $user_type = $this->get_user_type($this->email);
+        $params = [];
         if (isset($user_type["rol"]["administrator"])) {
             $this->is_admin = true;
             $query = $this->admin_query;
             $count_orders_query = $this->db->get_scalar("select count(id) as orders from wp_procedure");
         } else {
             $query = $this->client_query;
-            $count_orders_query = $this->db->get_scalar("select count(id) as orders from wp_procedure p
+            $params["email"] = $this->email;
+            $count_orders_query = $this->db->get_scalar("select count(p.id) as orders from wp_procedure p
             inner join wpsw_users u on p.user_id = u.ID
             and u.user_email=$this->email");
         }
-        $user_orders = $this->db->get_query($query, [
-            "email" => $this->email,
-            "start" => $limit["start"],
-            "items" => $limit["items"]]);
+        $params["start"] = intval($limit["start"]);
+        $params["items"] = intval($limit["items"]);
+
+        $user_orders = $this->db->get_query($query, $params);
         if (IS_DEVELOPMENT) {
             krumo($user_orders);
         }
+        if (isset($user_orders["error"])) {
+            die($user_orders["error"]);
+        }
         for ($i = 0; $i < count($user_orders[self::DATA]); $i++) {
             $user_orders[self::DATA][$i]["creation_date"] = self::createDateTimeFromString($user_orders[self::DATA][$i]["creation_date"]);
+            $user_orders[self::DATA][$i]["update_date"] = self::createDateTimeFromString($user_orders[self::DATA][$i]["update_date"]);
         }
 
         $user_orders["stats"]["total_records"] = $count_orders_query;
