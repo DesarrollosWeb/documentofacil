@@ -1,12 +1,15 @@
 <?php
+include_once 'gestoria/constants.php';
+include_once 'gestoria/Db.php';
 include_once "gestoria/vendor/autoload.php";
 
-$pdo = new PDO("mysql:host=localhost", "test", "12345678");
+$pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASSWORD);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
-$count_procedures_query = $pdo->query("select count(id) as total from gestoria.`procedure`");
-$total_procedures = $count_procedures_query->fetchColumn();
+$db = DB::getInstance();
+
+$total_procedures = $db->get_scalar("select count(id) from wp_procedure");
 $items_per_page = 5;
 $total_pages = ceil($total_procedures / $items_per_page);
 $current_page = 1;
@@ -21,10 +24,9 @@ echo "<br/>total procedures: " . $total_procedures;
 echo "<br/> offset: " . $offset;
 
 try {
-    $procedure_query = $pdo->prepare("SELECT * FROM gestoria.procedure ORDER BY creation_date LIMIT :start, :end");
-    $procedure_query->execute(["start" => $offset, "end" => $items_per_page]);
-    $procedure_query->setFetchMode(PDO::FETCH_ASSOC);
-    $procedures = $procedure_query->fetchAll();
+    $procedures = $db->get_query("SELECT * FROM wp_procedure ORDER BY creation_date LIMIT :start, :end",
+        ["start" => $offset, "end" => $items_per_page]);
+    krumo($procedures);
 } catch (Exception $e) {
     echo $e->getMessage();
 }
@@ -40,7 +42,7 @@ try {
 </head>
 <body>
 <ul>
-    <?php foreach ($procedures as $row): ?>
+    <?php foreach ($procedures["data"] as $row): ?>
         <li><strong><?= $row["id"]; ?></strong> <?= $row["creation_date"]; ?></li>
     <?php endforeach; ?>
 </ul>
