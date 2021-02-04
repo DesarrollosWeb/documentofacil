@@ -3,10 +3,7 @@ include_once 'gestoria/constants.php';
 include_once 'gestoria/Db.php';
 include_once "gestoria/vendor/autoload.php";
 
-$pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASSWORD);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-
+const PAGE = "?page=";
 $db = DB::getInstance();
 
 $total_procedures = $db->get_scalar("select count(id) from wp_procedure");
@@ -47,13 +44,19 @@ try {
     <?php endforeach; ?>
 </ul>
 <table>
+    <caption>Sonarlint is annoying</caption>
+    <thead>
+    <tr>
+        <th scope="row" colspan="4">Title</th>
+    </tr>
+    </thead>
     <tr>
         <td><a href="<?= $_SERVER["PHP_SELF"] . "?page=1"; ?>">Primero</a></td>
         <td>
-            <a href="<?= $_SERVER["PHP_SELF"] . "?page=" . ($current_page - 1 < 1 ? 1 : $current_page - 1); ?>">anterior</a>
+            <a href="<?= $_SERVER["PHP_SELF"] . PAGE . ($current_page - 1 < 1 ? 1 : $current_page - 1); ?>">anterior</a>
         </td>
-        <td><a href="<?= $_SERVER["PHP_SELF"] . "?page=" . ($current_page + 1); ?>">siguiente</a></td>
-        <td><a href="<?= $_SERVER["PHP_SELF"] . "?page=" . ($total_pages); ?>">ultimo</a></td>
+        <td><a href="<?= $_SERVER["PHP_SELF"] . PAGE . ($current_page + 1); ?>">siguiente</a></td>
+        <td><a href="<?= $_SERVER["PHP_SELF"] . PAGE . ($total_pages); ?>">ultimo</a></td>
     </tr>
 </table>
 
