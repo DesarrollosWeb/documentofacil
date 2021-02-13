@@ -23,3 +23,6 @@ wp-settings.php
 .idea/
 xmlrpc.php
 index.php
+/node_modules/
+/tramites/
+/cypress/integration/examples/

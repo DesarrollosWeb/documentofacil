@@ -1,6 +1,6 @@
 <?php
 //if (!IS_DEVELOPMENT) {
-include_once "wp-load.php";
+//include_once "wp-load.php";
 //}
 const PAGE = "?page=";
 //region Includes

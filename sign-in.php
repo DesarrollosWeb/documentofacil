@@ -1,26 +1,37 @@
 <?php
 error_reporting(E_ALL);
-const CLIENT_ID = 'e2b8f3e6-42cd-44ff-8c87-1a37d9b25c98';
-const CLIENT_SECRET = '8.li7.6o-5F2AY-w3neV.b6a~Qcvq1-Od3';
-const SECRET_ID = "a6b10a03-4471-4015-99a7-e20ae33ab120";
 require_once "gestoria/constants.php";
 require_once __DIR__ . "/gestoria/vendor/autoload.php";
 
 use Krizalys\Onedrive\Onedrive;
 
-$client = Onedrive::client(CLIENT_ID);
+const PROCEDURE_ID = "procedure_id";
+$client = Onedrive::client(ONEDRIVE_CLIENT_ID);
 
-$url = $client->getLogInUrl([
-    'files.read',
-    'files.read.all',
-    'files.readwrite',
-    'files.readwrite.all',
-    'offline_access',
-], "https://www.documentofacil.com/redirect.php");
+if (isset($_GET[PROCEDURE_ID])) {
+    $procedure_id = filter_var($_GET[PROCEDURE_ID], FILTER_SANITIZE_NUMBER_INT);
+}
 
-session_start();
+if (isset($procedure_id)) {
+    $url = $client->getLogInUrl([
+        'files.read',
+        'files.read.all',
+        'files.readwrite',
+        'files.readwrite.all',
+        'offline_access',
+    ], ONEDRIVE_REDIRECT_URI, $procedure_id);
+} else {
+    $url = $client->getLogInUrl([
+        'files.read',
+        'files.read.all',
+        'files.readwrite',
+        'files.readwrite.all',
+        'offline_access',
+    ], ONEDRIVE_REDIRECT_URI);
+}
 
-$_SESSION["onedrive.client.state"] = $client->getState();
+
+$_SESSION[ONEDRIVE_CLIENT_STATE] = $client->getState();
 
 header("HTTP/1.1 302 Found", true, 302);
 header("Location: $url");

@@ -147,24 +147,41 @@ from wp_procedure p
         return $user_orders;
     }
 
+    /**
+     * Get order and files from procedure
+     * @param string $procedure_id procedure id
+     * @return array [
+     * 'procedure'=> array,
+     * 'files' => array
+     * ]
+     */
     public function get_order_and_procedure(string $procedure_id): array
     {
         $procedure_data = $this->db->get_query("select p.id,
        creation_date,
        update_date,
        t.name,
-       ps.status                            as order_status,
-       u.user_nicename as user,
-       u.user_email as email,
-       p.id                                as procedure_id,
+       ps.status                              as order_status,
+       u.user_nicename                        as user,
+       u.user_email                           as email,
+       p.id                                   as procedure_id,
        creation_date                          as procedure_creation_date,
        update_date                            as procedure_update_date,
        ps.status                              as procedure_status,
-       p.user_id
+       p.user_id,
+       u.display_name,
+       wu.meta_value   as first_name,
+       wln.meta_value  as last_name,
+       dt.meta_value   as document_type,
+       dn.meta_value   as document_number
         from wp_procedure p
             inner join wp_procedure_status ps on ps.id = p.status_id
             inner join wp_procedure_type t on t.id = p.procedure_type
             inner join wpsw_users u on u.ID = p.user_id
+         left join wpsw_usermeta wu on p.user_id = wu.user_id and wu.meta_key = 'first_name'
+         left join wpsw_usermeta wln on p.user_id = wln.user_id and wln.meta_key = 'last_name'
+         left join wpsw_usermeta dt on p.user_id = dt.user_id and dt.meta_key = 'document_type2'
+         left join wpsw_usermeta dn on p.user_id = dn.user_id and dn.meta_key = 'document_number'
             where p.ID=:procedure_id", ["procedure_id" => $procedure_id]);
         $procedure_files = $this->db->get_query("select pf.id, file_path, ft.id, ft.type, pf.document_name
 		from wp_procedure_file pf
@@ -208,8 +225,21 @@ from wp_procedure p
             ["status" => $status, "procedure_id" => $procedure_id]);
     }
 
-    public function get_user_files(): array
+    /**
+     * get files from user
+     * @param string|null $user_email user email
+     * @return array[
+     * 'id'=>string,
+     * 'file_path'=>string,
+     * 'type'=>string,
+     * 'document_name'=>string
+     * ]
+     */
+    public function get_user_files(?string $user_email = ""): array
     {
+        if (!empty($user_email)) {
+            $this->email = $user_email;
+        }
         return $this->db->get_query("select pf.id, file_path, wpft.type, document_name
         from wp_procedure_file pf
             left join wp_procedure_file_type wpft on pf.type = wpft.id

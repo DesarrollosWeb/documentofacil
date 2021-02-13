@@ -7,7 +7,12 @@ include_once "gestoria/vendor/autoload.php";
 include_once "gestoria/constants.php";
 include_once "gestoria/Procedure.php";
 //endregion
-
+if (!IS_DEVELOPMENT) {
+    $user_session = wp_get_current_user();
+    $_SESSION["email"] = $user_session->user_email;
+} else {
+    $_SESSION["email"] = "anyulled@gmail.com";
+}
 $procedure = new Procedure($_SESSION["email"]);
 
 $document_types = $procedure->get_document_types();
@@ -17,11 +22,9 @@ if (isset($_POST["submit"])) {
 }
 $procedure_data = $procedure->get_order_and_procedure($procedure_id);
 $user_metadata = get_user_meta($procedure_data["procedure"]["user_id"], "", false);
+$states = WC()->countries->get_states("ES");
 try {
     $user = $procedure->get_user_type($_SESSION["email"]);
-    if (IS_DEVELOPMENT) {
-        krumo($user);
-    }
 } catch (Exception $e) {
     echo "Usuario no encontrado:" . $e->getMessage();
 }
@@ -59,7 +62,8 @@ try {
                         : <?= $procedure_data["procedure"]["procedure_status"]; ?></h4>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <strong><?= $text["user"]; ?></strong>: <?= $procedure_data["procedure"]["user"]; ?></li>
+                            <strong><?= $text["user"]; ?></strong>: <?= $user_metadata["first_name"][0] . " " . $user_metadata["last_name"][0] . " (" . $procedure_data["procedure"]["user"] . ")"; ?>
+                        </li>
                         <li class="list-group-item">
                             <strong>Email</strong>: <?= $procedure_data["procedure"]["email"]; ?></li>
                         <li class="list-group-item">
@@ -76,7 +80,7 @@ try {
     <br/>
     <div class="row">
         <div class="col">
-            <div class="card">
+            <div class="card" id="user-info">
                 <div class="card-body">
                     <h3 class="card-title"><?= $text["personal_data"]; ?></h3>
                     <ul class="list-group list-group-flush">
@@ -84,7 +88,7 @@ try {
                             : <?= $user_metadata["document_type2"][0] . " - " . $user_metadata["document_number"][0]; ?>
                         </li>
                         <li class="list-group-item"><strong><?= $text["address"]; ?></strong>
-                            : <?= $user_metadata["billing_address_1"][0] . ", " . $user_metadata["billing_city"][0] . ". " . $user_metadata["billing_state"][0] . ", " . $user_metadata["billing_postcode"][0]; ?>
+                            : <?= $user_metadata["billing_address_1"][0] . ", " . $user_metadata["billing_city"][0] . ". " . $states[$user_metadata["billing_state"][0]] . ", " . $user_metadata["billing_postcode"][0]; ?>
                         </li>
                     </ul>
                 </div>
@@ -106,6 +110,13 @@ try {
                 </ul>
             </div>
         </div>
+        <?php if (isset($user) && $user["rol"]["administrator"]): ?>
+            <div class="col"><a href="sign-in.php?procedure_id=<?= $procedure_id; ?>">
+                    <img src="gestoria/onedrive-logo.png" alt="<?= $text["sent_to_onedrive"]; ?>">
+                    <?= $text["sent_to_onedrive"]; ?>
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
     <form action="" enctype='multipart/form-data' method="post">
         <input type="hidden" name="procedure_id" id="procedure_id"
@@ -138,10 +149,14 @@ try {
     </form>
     <?php if (isset($result)): ?>
         <br/>
-        <div class="alert alert-info">
-            <?= $text["process_success"]; ?>.
+        <div class="row">
+            <div class="col text-align-center">
+                <div class="alert alert-info">
+                    <?= $text["process_success"]; ?>.
+                </div>
+                <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
+            </div>
         </div>
-        <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
     <?php endif; ?>
 </div>
 <?php if (!IS_DEVELOPMENT) {
