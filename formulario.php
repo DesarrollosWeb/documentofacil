@@ -111,7 +111,7 @@ try {
             </div>
         </div>
         <?php if (isset($user) && $user["rol"]["administrator"]): ?>
-            <div class="col"><a href="sign-in.php?procedure_id=<?= $procedure_id; ?>">
+            <div class="col"><a id="send-to-onedrive" href="sign-in.php?procedure_id=<?= $procedure_id; ?>">
                     <img src="gestoria/onedrive-logo.png" alt="<?= $text["sent_to_onedrive"]; ?>">
                     <?= $text["sent_to_onedrive"]; ?>
                 </a>
