@@ -49,13 +49,12 @@ function create_user_folder(Client $client, string $folder_id, string $folder_na
 {
     try {
         $folder = $client->getMyDrive()->getDriveItemById($folder_id);
-        $folder->createFolder($folder_name);
+        $folder = $folder->createFolder($folder_name);
     } catch (Exception $e) {
         try {
             $folder = $client->getMyDrive()->getRoot()->createFolder($folder_name);
-            $folder->createFolder($folder_name);
+            $folder = $folder->createFolder($folder_name);
         } catch (Exception $e) {
-            krumo($e);
             return null;
         }
     }
@@ -64,7 +63,7 @@ function create_user_folder(Client $client, string $folder_id, string $folder_na
 
 /**
  * @param array $files
- * @param DriveItemProxy $folder
+ * @param DriveItemProxy|null $folder
  * @return array
  */
 function copy_files(array $files, ?DriveItemProxy $folder): array
@@ -94,7 +93,7 @@ if (array_key_exists("submit", $_POST)) {
     $files_path = array_map(fn($element) => $element["file_path"], $user_files["data"]);
     $client = Onedrive::client(ONEDRIVE_CLIENT_ID, ["state" => $_SESSION[ONEDRIVE_CLIENT_STATE]]);
     $user_folder = create_user_folder($client, $folder_id, $folder_name);
-    $items = copy_files($user_files, $user_folder);
+    $items = copy_files($files_path, $user_folder);
 } else {
     if (!array_key_exists(CODE, $_GET)) {
         throw new Exception("undefined code in request");
@@ -109,8 +108,11 @@ if (array_key_exists("submit", $_POST)) {
         $client->obtainAccessToken(ONEDRIVE_CLIENT_SECRET, $_GET[CODE]);
         $_SESSION[ONEDRIVE_CLIENT_STATE] = $client->getState();
         $_SESSION["ACCESS_TOKEN"] = $_GET[CODE];
+        $children = $client->getMyDrive()->getRoot()->getChildren();
     } catch (Exception $e) {
         krumo($e);
+        echo $e->getMessage();
+        krumo($_SESSION);
     }
 }
 
@@ -163,7 +165,7 @@ if (array_key_exists("error", $_GET)) {
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </select>
-                                <button type="submit" name="submit"
+                                <button id="submit" type="submit" name="submit"
                                         class="btn btn-success"><?= $text["sent_to_onedrive"]; ?></button>
                             <?php endif; ?>
                         </div>
