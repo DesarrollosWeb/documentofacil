@@ -53,6 +53,9 @@ try {
     get_header();
 } ?>
 <div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4"><?= $text["procedure_title"]; ?></h1>
+    </div>
     <div class="row">
         <div class="col">
             <div class="card" id="procedure_info">
@@ -102,7 +105,7 @@ try {
                 <h4><?= $text["documents"]; ?></h4>
                 <ul class="list-group list-group-horizontal">
                     <?php foreach ($procedure_data["files"] as $file): ?>
-                        <li class="list-group-item">
+                        <li class="list-group-item"><i class="far fa-file"></i>
                             <a href="<?= "https://" . $_SERVER["SERVER_NAME"] . "/" . $file["file_path"]; ?>"
                                target="_blank"><?= (!empty($file["document_name"])) ? $file["type"] . " - " . $file["document_name"] : $file["type"]; ?></a>
                         </li>
@@ -112,7 +115,7 @@ try {
         </div>
         <?php if (isset($user) && $user["rol"]["administrator"]): ?>
             <div class="col"><a id="send-to-onedrive" href="sign-in.php?procedure_id=<?= $procedure_id; ?>">
-                    <img src="gestoria/onedrive-logo.png" alt="<?= $text["sent_to_onedrive"]; ?>">
+                    <img src="gestoria/onedrive-logo.png" alt="<?= $text["sent_to_onedrive"]; ?>"><br/>
                     <?= $text["sent_to_onedrive"]; ?>
                 </a>
             </div>

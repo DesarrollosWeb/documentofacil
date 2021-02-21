@@ -124,7 +124,7 @@ try {
                     <div class="form-group col-md-12 text-center">
                         <button type="button" onclick="history.back();"
                                 class="btn btn-secondary"><?= $text["back"]; ?></button>
-                        <button type="submit" name="submit" class="btn btn-primary"><?= $text["send"]; ?></button>
+                        <button type="submit" name="submit" class="btn btn-success"><?= $text["send"]; ?></button>
                     </div>
                 </div>
             </form>

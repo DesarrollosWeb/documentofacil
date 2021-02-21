@@ -1,6 +1,7 @@
 <?php
 
 //region Includes
+include_once "wp-load.php";
 include_once "gestoria/constants.php";
 include_once "gestoria/Procedure.php";
 require_once __DIR__ . "/gestoria/vendor/autoload.php";
@@ -141,15 +142,28 @@ if (array_key_exists("error", $_GET)) {
     <link rel="stylesheet" media="all" type="text/css" href="gestoria.css"/>
 </head>
 <body>
+<?php if (!IS_DEVELOPMENT) {
+    get_header();
+} ?>
 <div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4"><?= $text["procedure_title"]; ?></h1>
+    </div>
     <div class="row">
         <div class="col">
             <?php if (isset($items)): ?>
+                <div class="alert alert-success">
+                    <?= $text["process_success"]; ?>.
+                </div>
+                <h4><?= $text["documents"]; ?></h4>
+                <?php foreach ($items as $item): ?>
+                    <p><i class="far fa-file"></i>
+                        <a target="_blank" href="<?= $item->webUrl; ?>"><?= $item->name; ?></a>
+                    </p>
+                <?php endforeach; ?>
                 <div class="text-align-center">
-                    <div class="alert alert-success">
-                        <?= $text["process_success"]; ?>.
-                    </div>
                     <a href="tramites.php" class="btn btn-secondary"><?= $text["back_to_list"]; ?></a>
+                    <br/><br/>
                 </div>
             <?php else: ?>
                 <form action="" method="post">
@@ -175,5 +189,9 @@ if (array_key_exists("error", $_GET)) {
         </div>
     </div>
 </div>
+
+<?php if (!IS_DEVELOPMENT) {
+    get_footer();
+} ?>
 </body>
 </html>
