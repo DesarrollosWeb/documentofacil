@@ -70,7 +70,7 @@ if (!IS_DEVELOPMENT) {
                                 href="mailto:info@documentofacil.com?subject=Solicitud%20Info"><?= $text["contact_us"]; ?></a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://www.documentofacil.com/index.php/mi-cuenta/customer-logout/"><?= $text["exit"]; ?>
+                        <a href="https://www.documentofacil.com/wp-login.php?action=logout"><?= $text["exit"]; ?>
                         </a>
                     </li>
                 </ul>
