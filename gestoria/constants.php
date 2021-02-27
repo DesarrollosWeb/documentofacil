@@ -8,7 +8,7 @@ $acceptLang = ['es', 'pt'];
 $lang = in_array($lang, $acceptLang) ? $lang : 'es';
 require_once "lang_{$lang}.php";
 
-define("IS_DEVELOPMENT", false);
+const IS_DEVELOPMENT = false;
 if (IS_DEVELOPMENT) {
 // ** MySQL settings - You can get this info from your web host ** //
     /** The name of the database for WordPress */
@@ -30,17 +30,17 @@ if (IS_DEVELOPMENT) {
 
 }
 
-define("STRIPE_API", "pk_test_51HV3x0AlxX0d4JWfw8wkiQCUhaHfSOlq99joORY4akPa2UV7lnAfKboDD6vMhevdMx1YyajljMxG3sdWmOUgWHVo00I6dmlj7c");
-define("STRIPE_API_SECRET", "sk_test_51HV3x0AlxX0d4JWf3VRedxULp5mk4CTK9wIRTPls75mWXXhWv2gslmFArxxXzSnut8fTInguT8rZ8JgoF55oxGLj00rhbbYOTc");
+const STRIPE_API = "pk_test_51HV3x0AlxX0d4JWfw8wkiQCUhaHfSOlq99joORY4akPa2UV7lnAfKboDD6vMhevdMx1YyajljMxG3sdWmOUgWHVo00I6dmlj7c";
+const STRIPE_API_SECRET = "sk_test_51HV3x0AlxX0d4JWf3VRedxULp5mk4CTK9wIRTPls75mWXXhWv2gslmFArxxXzSnut8fTInguT8rZ8JgoF55oxGLj00rhbbYOTc";
 
-define("ORDER_COMPLETED", "Completado");
-define("ONEDRIVE_CLIENT_ID", "e2b8f3e6-42cd-44ff-8c87-1a37d9b25c98");
+const ORDER_COMPLETED = "Completado";
+const ONEDRIVE_CLIENT_ID = "e2b8f3e6-42cd-44ff-8c87-1a37d9b25c98";
 if (strpos($_SERVER["HTTP_HOST"], "localhost")) {
     define("ONEDRIVE_REDIRECT_URI", "http://localhost:8080/redirect.php");
 } else {
     define("ONEDRIVE_REDIRECT_URI", "https://www.documentofacil.com/redirect.php");
 }
-define("ONEDRIVE_CLIENT_STATE", "onedrive.client.state");
-define("ONEDRIVE_CLIENT_SECRET", "-00V_Lqk1QT1Vv_wUf6ol6rbQeT_Upm8y8");
+const ONEDRIVE_CLIENT_STATE = "onedrive.client.state";
+const ONEDRIVE_CLIENT_SECRET = "-00V_Lqk1QT1Vv_wUf6ol6rbQeT_Upm8y8";
 
 

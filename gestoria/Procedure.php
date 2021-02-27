@@ -13,8 +13,6 @@ class Procedure
 
     private Db $db;
 
-    private bool $is_admin = false;
-
     public static array $order_statuses = array(
         'wc-pending' => 'Pago Pendiente',
         'wc-processing' => 'Procesando',
@@ -64,7 +62,9 @@ from wp_procedure p
     inner join wp_procedure_type t on t.id = p.procedure_type
     inner join wpsw_users u on u.ID = p.user_id
     where u.user_email=:email
-    order by p.update_date desc";
+    order by p.update_date desc
+    LIMIT :start, :items 
+    ";
 
     /**
      * Parses a date from a string format into a DateTime with UTC timezone.
@@ -99,7 +99,7 @@ from wp_procedure p
                 $user_type[self::DATA][$i]["display_name"] = URLify::slug($user_type[self::DATA][$i]["display_name"]);
             }
         } else {
-            throw new Exception("User not found");
+            throw new Exception("User $email not found");
         }
         if (IS_DEVELOPMENT) {
             krumo($user_type);
@@ -118,7 +118,6 @@ from wp_procedure p
         $user_type = $this->get_user_type($this->email);
         $params = [];
         if (isset($user_type["rol"]["administrator"])) {
-            $this->is_admin = true;
             $query = $this->admin_query;
             $count_orders_query = $this->db->get_scalar("select count(id) as orders from wp_procedure");
         } else {
@@ -126,7 +125,7 @@ from wp_procedure p
             $params["email"] = $this->email;
             $count_orders_query = $this->db->get_scalar("select count(p.id) as orders from wp_procedure p
             inner join wpsw_users u on p.user_id = u.ID
-            and u.user_email=$this->email");
+            where u.user_email='$this->email'");
         }
         $params["start"] = intval($limit["start"]);
         $params["items"] = intval($limit["items"]);
