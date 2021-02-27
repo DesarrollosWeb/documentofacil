@@ -111,9 +111,10 @@ try {
                         </li>
                     <?php endforeach; ?>
                 </ul>
+                <br/>
             </div>
         </div>
-        <?php if (isset($user) && $user["rol"]["administrator"]): ?>
+        <?php if (isset($user) && isset($user["rol"]["administrator"])): ?>
             <div class="col"><a id="send-to-onedrive" href="sign-in.php?procedure_id=<?= $procedure_id; ?>">
                     <img src="gestoria/onedrive-logo.png" alt="<?= $text["sent_to_onedrive"]; ?>"><br/>
                     <?= $text["sent_to_onedrive"]; ?>
@@ -121,6 +122,15 @@ try {
             </div>
         <?php endif; ?>
     </div>
+    <?php if (isset($user) && isset($user["rol"]["customer"])): ?>
+        <div class="row">
+            <div class="col text-align-center">
+                <button type="button" onclick="history.back();"
+                        class="btn btn-secondary"><?= $text["back"]; ?></button>
+                <br/>
+            </div>
+        </div>
+    <?php endif; ?>
     <form action="" enctype='multipart/form-data' method="post">
         <input type="hidden" name="procedure_id" id="procedure_id"
                value="<?= $procedure_data["procedure"]["procedure_id"]; ?>"/>
