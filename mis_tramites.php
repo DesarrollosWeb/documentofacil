@@ -1,6 +1,6 @@
 <?php
 //if (!IS_DEVELOPMENT) {
-//include_once "wp-load.php";
+include_once "wp-load.php";
 //}
 const PAGE = "?page=";
 //region Includes
@@ -77,9 +77,9 @@ try {
                         <th id="1" scope="col"><?= $text["name"]; ?></th>
                         <th id="2" scope="col"><?= $text["user"] ?></th>
                         <th id="3" scope="col"><?= $text["creation_date"] ?></th>
-                        <th id="3" scope="col"><?= $text["update_date"] ?></th>
-                        <th id="4" scope="col"><?= $text["status"] ?></th>
-                        <th id="4" scope="col"><?= $text["action"] ?></th>
+                        <th id="4" scope="col"><?= $text["update_date"] ?></th>
+                        <th id="5" scope="col"><?= $text["status"] ?></th>
+                        <th id="6" scope="col"><?= $text["action"] ?></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -98,7 +98,7 @@ try {
                     </tbody>
                     <tfoot>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <div style="text-align: right;">
                                 <nav aria-label="Page navigation example">
                                     <ul class="pagination justify-content-end">
