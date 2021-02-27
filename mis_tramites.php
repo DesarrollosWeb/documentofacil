@@ -17,7 +17,7 @@ if (!IS_DEVELOPMENT) {
     $_SESSION["email"] = "anyulled@gmail.com";
 }
 $procedure = new Procedure($_SESSION["email"]);
-$current_page = 1;
+$current_page = 0;
 $items_per_page = 10;
 $total_pages = 0;
 if (array_key_exists("page", $_GET)) {
@@ -139,7 +139,7 @@ try {
 <?php if (!IS_DEVELOPMENT) {
     get_footer();
 } ?>
-<script type="application/javascript">
+<script>
     $("#wp-submit").addClass("btn btn-success");
 </script>
 </body>
