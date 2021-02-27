@@ -55,7 +55,9 @@ class DB
             $result['stats']['affected_rows'] = $stmt->rowCount();
         } catch (PDOException $e) {
             if (IS_DEVELOPMENT) {
+                $stmt->debugDumpParams();
                 krumo($query, $params, $result);
+                krumo($e);
             }
             $result["error"] = $e->getMessage();
         }
@@ -63,10 +65,23 @@ class DB
         return $result;
     }
 
+    /**
+     * Get an scalar value from the table
+     * @param string $query sql query
+     * @return string return an scalar value
+     */
     public function get_scalar(string $query): string
     {
-        $statement = $this->connection->query($query);
-        return $statement->fetchColumn();
+        $result = null;
+        $statement = null;
+        try {
+            $statement = $this->connection->query($query);
+            $result = $statement->fetchColumn();
+        } catch (Exception $e) {
+            $statement->debugDumpParams();
+            krumo($e);
+        }
+        return $result;
     }
 
     /**
@@ -79,7 +94,6 @@ class DB
      */
     public function execute_query(string $sql, array $values): bool
     {
-        $result = null;
         try {
             $result = $this->connection->prepare($sql)->execute($values);
             if (IS_DEVELOPMENT) {
