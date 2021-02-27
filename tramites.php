@@ -74,6 +74,7 @@ if (!IS_DEVELOPMENT) {
                         </a>
                     </li>
                 </ul>
+                <br/>
             </div>
             <div class="col-sm-9"></div>
         </div>

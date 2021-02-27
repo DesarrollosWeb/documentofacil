@@ -61,8 +61,6 @@ $procedure_types = $procedure_instance->get_procedure_types();
                         <input id="city" type="hidden" name="city" value="<?= $user_metadata["billing_city"][0]; ?>"/>
                         <input id="address" type="hidden" name="address"
                                value="<?= $user_metadata["billing_address_1"][0]; ?>"/>
-                        <input id="country" type="hidden" name="country"
-                               value="<?= $user_metadata["billing_country"][0]; ?>"/>
                         <!--endregion-->
                         <div class="form-group row">
                             <label for="concept" class="col-4 col-form-label"><?= $text["payment_concept"]; ?></label>
@@ -212,7 +210,6 @@ $procedure_types = $procedure_instance->get_procedure_types();
                         address: {
                             city: defaultIfEmpty($("#city").val()),
                             line1: defaultIfEmpty($("#address").val()),
-                            country: defaultIfEmpty($("#country").val()),
                             state: defaultIfEmpty($("#state").val())
                         },
                         name: $("#customer").val(),
